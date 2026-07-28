@@ -1,0 +1,11 @@
+# Meson build directory
+build/
+_build/
+
+# Node modules (just in case)
+node_modules/
+*.log
+
+# IDEs
+.vscode/
+.idea/
