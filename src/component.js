@@ -24,4 +24,8 @@ export class BaseComponent {
     on(signalName, callback) {
         this.widget.connect(signalName, callback);
     }
+
+    setTooltip(text) {
+        this.widget.set_tooltip_text(text);
+    }
 }
