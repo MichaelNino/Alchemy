@@ -85,8 +85,9 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 - `QTabs` / `QTab` (Integrated with `Gtk.Stack`)
 
 **Forms & Inputs**
+- `QForm` (Validation orchestrator)
 - `QBtn` (`Gtk.Button`)
-- `QInput` (`Gtk.Entry` / `Gtk.PasswordEntry`)
+- `QInput` (`Gtk.Entry` / `Gtk.PasswordEntry` with Rules/Validation)
 - `QCheckbox` (`Gtk.CheckButton`)
 - `QRadio` (`Gtk.CheckButton` groups)
 - `QToggle` (`Gtk.Switch`)
@@ -94,7 +95,8 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 - `QSlider` (`Gtk.Scale`)
 
 **Data Display**
-- `QTable` (Reactive Data Grids via `Gtk.Grid`)
+- `QTable` (Reactive, sortable, paginated Data Grids via `Gtk.Grid`)
+- `QTree` (Recursive, animated hierarchical file explorers)
 - `QList` / `QItem` (`Gtk.ListBox`)
 - `QCard` / `QCardSection` (Styled container frames)
 - `QIcon` (`Gtk.Image` with symbolic icons)

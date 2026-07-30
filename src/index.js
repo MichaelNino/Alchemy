@@ -23,3 +23,5 @@ export { QAvatar } from './components/QAvatar.js';
 export { QSelect } from './components/QSelect.js';
 export { QSlider } from './components/QSlider.js';
 export { QMenu } from './components/QMenu.js';
+export { QForm } from './components/QForm.js';
+export { QTree } from './components/QTree.js';

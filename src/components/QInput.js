@@ -4,29 +4,57 @@ import { effect } from '../reactivity.js';
 
 export class QInput extends BaseComponent {
     constructor(props = {}) {
-        super(new Gtk.Entry());
+        super(new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4 }));
         
+        this.entry = new Gtk.Entry();
+        this.errorLabel = new Gtk.Label({ xalign: 0 });
+        this.errorLabel.visible = false;
+        
+        this.widget.append(this.entry);
+        this.widget.append(this.errorLabel);
+
+        this.rules = props.rules || [];
+        this.hasError = false;
+
         if (props.placeholder) {
-            this.widget.placeholder_text = props.placeholder;
+            this.entry.placeholder_text = props.placeholder;
         }
 
         if (props.modelValue !== undefined) {
-            // Initial value
-            this.widget.text = props.modelValue.value;
+            this.entry.text = props.modelValue.value;
             
-            // Update ref on widget change
-            this.on('changed', () => {
-                if (props.modelValue.value !== this.widget.text) {
-                    props.modelValue.value = this.widget.text;
+            this.entry.connect('changed', () => {
+                if (props.modelValue.value !== this.entry.text) {
+                    props.modelValue.value = this.entry.text;
                 }
+                this.validate();
             });
             
-            // Update widget on ref change
             effect(() => {
-                if (this.widget.text !== props.modelValue.value) {
-                    this.widget.text = props.modelValue.value;
+                if (this.entry.text !== props.modelValue.value) {
+                    this.entry.text = props.modelValue.value;
                 }
             });
         }
+        
+        this.validate = () => {
+            if (!this.rules || this.rules.length === 0) return true;
+            
+            for (let rule of this.rules) {
+                const result = rule(this.entry.text);
+                if (typeof result === 'string') {
+                    this.hasError = true;
+                    this.entry.add_css_class('error');
+                    this.errorLabel.set_markup(`<span foreground="red" size="small">${result}</span>`);
+                    this.errorLabel.visible = true;
+                    return false;
+                }
+            }
+            
+            this.hasError = false;
+            this.entry.remove_css_class('error');
+            this.errorLabel.visible = false;
+            return true;
+        };
     }
 }

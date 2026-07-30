@@ -2,150 +2,345 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk?version=4.0';
 
-import { ref, computed, effect } from '../../src/index.js';
+import { ref, effect, computed } from '../../src/index.js';
 import { 
     QBtn, QLayout, QCard, QCardSection, 
-    QList, QItem, QDialog, QLabel, QToolbar, QDrawer,
-    QTabs, QTab, QSpinner, QProgressBar, QNotify, QTable, QToggle,
-    QIcon, QAvatar, QSelect, QSlider, QMenu
+    QList, QItem, QLabel, QToolbar, QDrawer,
+    QTabs, QTab, QTable,
+    QIcon, QAvatar, QSelect, QSlider, QMenu,
+    QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
+    QDialog, QNotify, QSpinner, QProgressBar
 } from '../../src/index.js';
 
+// --- Page Builders ---
+
+function buildIntroPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    const headerBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 15 });
+    
+    const avatar = new QAvatar({ size: 80 });
+    avatar.append(new QIcon({ name: 'applications-engineering-symbolic', size: 48 }));
+    headerBox.append(avatar.widget);
+    
+    const titleBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 5 });
+    titleBox.append(new QLabel({ label: '<span size="x-large" weight="bold">Alchemy Framework</span>', useMarkup: true }).widget);
+    titleBox.append(new QLabel({ label: 'A Quasar-inspired UI Framework for GJS & GTK4' }).widget);
+    headerBox.append(titleBox);
+    
+    section.append({ widget: headerBox });
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 15, margin_bottom: 15 }) });
+    
+    section.append(new QLabel({ 
+        label: 'Welcome to the comprehensive showcase of Alchemy. Use the sidebar to explore all native GTK4 components wrapped in a familiar, Vue-like composition API.',
+        useMarkup: false
+    }));
+    
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
+function buildLayoutPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<b>Nested Tabs</b>', useMarkup: true }));
+    
+    const activeTab = ref('tab1');
+    const tabs = new QTabs({ modelValue: activeTab });
+    tabs.append(new QTab({ name: 'tab1', label: 'First Tab' }));
+    tabs.append(new QTab({ name: 'tab2', label: 'Second Tab' }));
+    section.append(tabs);
+    
+    const stack = new Gtk.Stack({ transition_type: Gtk.StackTransitionType.CROSSFADE });
+    stack.margin_top = 10;
+    
+    const tab1Box = new Gtk.Box();
+    tab1Box.append(new QLabel({ label: 'Content for the first tab...' }).widget);
+    stack.add_named(tab1Box, 'tab1');
+    
+    const tab2Box = new Gtk.Box();
+    tab2Box.append(new QLabel({ label: 'Alternative content for the second tab!' }).widget);
+    stack.add_named(tab2Box, 'tab2');
+    
+    effect(() => { stack.set_visible_child_name(activeTab.value); });
+    section.append({ widget: stack });
+    
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 20, margin_bottom: 20 }) });
+    section.append(new QLabel({ label: '<b>Popover Menus</b>', useMarkup: true }));
+    
+    const isMenuOpen = ref(false);
+    const menuBtn = new QBtn({ label: 'Open QMenu ▾', onClick: () => { isMenuOpen.value = true; } });
+    
+    const menu = new QMenu({ modelValue: isMenuOpen });
+    const menuList = new QList();
+    const m1 = new QItem(); m1.append(new QLabel({ label: 'Profile' }));
+    const m2 = new QItem(); m2.append(new QLabel({ label: 'Settings' }));
+    const m3 = new QItem(); m3.append(new QLabel({ label: 'Logout' }));
+    menuList.append(m1); menuList.append(m2); menuList.append(m3);
+    
+    menu.append(menuList);
+    menu.mount(menuBtn.widget);
+    
+    section.append(menuBtn);
+    
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
+function buildFormsPage(win) {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    const form = new QForm({
+        onSubmit: () => {
+            const dialog = new Gtk.MessageDialog({
+                transient_for: win, modal: true,
+                message_type: Gtk.MessageType.INFO,
+                buttons: Gtk.ButtonsType.OK,
+                text: 'Form validates successfully!'
+            });
+            dialog.connect('response', () => dialog.close());
+            dialog.present();
+        }
+    });
+    
+    form.append(new QLabel({ label: '<b>Input Validation</b>', useMarkup: true }));
+    
+    const username = ref('');
+    form.append(new QInput({
+        placeholder: 'Username (min 4 chars)',
+        modelValue: username,
+        rules: [
+            val => (val && val.length > 0) || 'Required',
+            val => val.length >= 4 || 'Min 4 characters'
+        ]
+    }));
+    
+    form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+    form.append(new QLabel({ label: '<b>Selectors &amp; Toggles</b>', useMarkup: true }));
+    
+    const fruit = ref('Apple');
+    form.append(new QSelect({ options: ['Apple', 'Banana', 'Cherry'], modelValue: fruit }));
+    
+    const isReady = ref(false);
+    form.append(new QToggle({ label: 'I am ready', modelValue: isReady }));
+    
+    const acceptTerms = ref(false);
+    form.append(new QCheckbox({ label: 'Accept Terms', modelValue: acceptTerms }));
+    
+    form.append(new QLabel({ label: 'Role:' }));
+    const role = ref('User');
+    form.append(new QRadio({ label: 'User', value: 'User', modelValue: role }));
+    form.append(new QRadio({ label: 'Admin', value: 'Admin', modelValue: role }));
+    
+    form.append(new QLabel({ label: 'Volume:' }));
+    const volume = ref(50);
+    form.append(new QSlider({ min: 0, max: 100, step: 1, modelValue: volume }));
+    
+    form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+    
+    form.append(new QBtn({ label: 'Submit Form', onClick: () => form.submit() }));
+    
+    section.append(form);
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
+function buildDataPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    
+    // Split view using a Box
+    const splitBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 20 });
+    page.append(splitBox);
+    
+    // Table Side
+    const tableBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, hexpand: true });
+    tableBox.append(new QLabel({ label: '<b>Paginated QTable</b>', useMarkup: true }).widget);
+    
+    const columns = [
+        { name: 'id', label: 'ID', field: 'id' },
+        { name: 'name', label: 'Product Name', field: 'name' },
+        { name: 'price', label: 'Price ($)', field: 'price' }
+    ];
+    const rowData = [];
+    for (let i = 1; i <= 25; i++) {
+        rowData.push({ id: i, name: `Item ${i}`, price: Math.floor(Math.random() * 100) + 10 });
+    }
+    const rows = ref(rowData);
+    const pagination = ref({ page: 1, rowsPerPage: 8, sortBy: null, descending: false });
+    
+    tableBox.append(new QTable({ columns, rows, pagination }).widget);
+    
+    // Progress bar linked to pagination
+    const progress = computed(() => {
+        const totalPages = Math.ceil(rowData.length / 8);
+        return pagination.value.page / totalPages;
+    });
+    const progBar = new QProgressBar({ value: progress });
+    progBar.widget.margin_top = 10;
+    tableBox.append(progBar.widget);
+    
+    splitBox.append(tableBox);
+    splitBox.append(new Gtk.Separator({ orientation: Gtk.Orientation.VERTICAL }));
+    
+    // Tree Side
+    const treeBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, hexpand: true });
+    treeBox.append(new QLabel({ label: '<b>File Explorer (QTree)</b>', useMarkup: true }).widget);
+    
+    const treeData = ref([
+        {
+            label: 'src',
+            children: [
+                { label: 'components', children: [{ label: 'QBtn.js' }, { label: 'QTable.js' }] },
+                { label: 'index.js' }
+            ]
+        },
+        {
+            label: 'examples',
+            children: [{ label: 'demo-app', children: [{ label: 'main.js' }] }]
+        }
+    ]);
+    
+    const treeScroll = new Gtk.ScrolledWindow({ vexpand: true });
+    treeScroll.set_child(new QTree({ nodes: treeData }).widget);
+    treeBox.append(treeScroll);
+    
+    splitBox.append(treeBox);
+    
+    return page;
+}
+
+function buildFeedbackPage(win) {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<b>Modals &amp; Dialogs</b>', useMarkup: true }));
+    
+    const isDialogOpen = ref(false);
+    section.append(new QBtn({ label: 'Open QDialog', onClick: () => { isDialogOpen.value = true; } }));
+    
+    const dialog = new QDialog({ title: 'Important Alert', modelValue: isDialogOpen, root: win });
+    dialog.append(new QLabel({ label: 'This is a native GTK modal controlled via Alchemy reactivity!' }));
+    
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 20, margin_bottom: 20 }) });
+    section.append(new QLabel({ label: '<b>Toast Notifications</b>', useMarkup: true }));
+    
+    section.append(new QBtn({ 
+        label: 'Show QNotify', 
+        onClick: () => { QNotify.create('Task completed successfully!'); } 
+    }));
+    
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 20, margin_bottom: 20 }) });
+    section.append(new QLabel({ label: '<b>Spinners</b>', useMarkup: true }));
+    
+    const isSpinning = ref(false);
+    section.append(new QToggle({ label: 'Toggle Loading State', modelValue: isSpinning }));
+    const spinner = new QSpinner({ spinning: isSpinning, size: 32 });
+    spinner.widget.margin_top = 10;
+    section.append(spinner);
+    
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
+// --- Main App Initialization ---
+
 const app = new Gtk.Application({
-    application_id: 'org.alchemy.Demo',
+    application_id: 'org.alchemy.Showcase',
     flags: Gio.ApplicationFlags.FLAGS_NONE
 });
 
 app.connect('activate', () => {
     const win = new Gtk.ApplicationWindow({
         application: app,
-        title: 'Alchemy Framework Dashboard (Iter 5)',
-        default_width: 800,
-        default_height: 600
+        title: 'Alchemy Framework Showcase',
+        default_width: 900,
+        default_height: 650
     });
 
     const rootLayout = new QLayout();
     
     // Header
-    const toolbar = new QToolbar({ title: 'Alchemy Admin' });
-    
+    const toolbar = new QToolbar({ title: 'Alchemy Showcase' });
     const isDrawerOpen = ref(true);
-    const toggleDrawerBtn = new QBtn({ 
-        onClick: () => { isDrawerOpen.value = !isDrawerOpen.value; } 
-    });
+    const toggleDrawerBtn = new QBtn({ onClick: () => { isDrawerOpen.value = !isDrawerOpen.value; } });
     toggleDrawerBtn.widget.set_child(new QIcon({ name: 'open-menu-symbolic' }).widget);
-    toggleDrawerBtn.setTooltip('Toggle Sidebar');
+    toggleDrawerBtn.setTooltip('Toggle Navigation Menu');
     toolbar.prepend(toggleDrawerBtn);
-    
     rootLayout.append(toolbar);
     
     const bodyBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
     rootLayout.widget.append(bodyBox);
     
-    // Drawer
+    // Drawer Navigation
     const drawer = new QDrawer({ modelValue: isDrawerOpen });
     const drawerList = new QList();
     
-    const navItem1 = new QItem();
-    navItem1.append(new QIcon({ name: 'go-home-symbolic' }));
-    navItem1.append(new QLabel({ label: 'Dashboard' }));
-    drawerList.append(navItem1);
+    const navItems = [
+        { id: 'intro', label: 'Introduction', icon: 'help-about-symbolic' },
+        { id: 'layout', label: 'Layout & Nav', icon: 'view-grid-symbolic' },
+        { id: 'forms', label: 'Forms & Validation', icon: 'format-text-direction-ltr-symbolic' },
+        { id: 'data', label: 'Data & Content', icon: 'view-list-symbolic' },
+        { id: 'feedback', label: 'Feedback & Modals', icon: 'dialog-information-symbolic' }
+    ];
     
-    const navItem2 = new QItem();
-    navItem2.append(new QIcon({ name: 'emblem-system-symbolic' }));
-    navItem2.append(new QLabel({ label: 'Settings' }));
-    drawerList.append(navItem2);
+    const activePage = ref('intro');
+    
+    navItems.forEach(item => {
+        const qItem = new QItem();
+        qItem.append(new QIcon({ name: item.icon }));
+        qItem.append(new QLabel({ label: item.label }));
+        
+        const click = new Gtk.GestureClick();
+        click.connect('pressed', () => { activePage.value = item.id; });
+        qItem.widget.add_controller(click);
+        
+        // Simple highlighting
+        effect(() => {
+            if (activePage.value === item.id) {
+                qItem.widget.add_css_class('suggested-action');
+            } else {
+                qItem.widget.remove_css_class('suggested-action');
+            }
+        });
+        
+        drawerList.append(qItem);
+    });
     
     drawer.append(drawerList);
     bodyBox.append(drawer.widget);
     
-    // Content Area
-    const contentBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, hexpand: true });
-    bodyBox.append(contentBox);
-    
-    // Tabs
-    const activeTab = ref('forms');
-    const tabs = new QTabs({ modelValue: activeTab });
-    tabs.append(new QTab({ name: 'forms', label: 'Advanced Forms & Icons' }));
-    tabs.append(new QTab({ name: 'data', label: 'Data View' }));
-    
-    tabs.widget.margin_top = 10;
-    tabs.widget.margin_start = 10;
-    contentBox.append(tabs.widget);
-    
-    const contentStack = new Gtk.Stack({ transition_type: Gtk.StackTransitionType.SLIDE_LEFT_RIGHT });
+    // Content Area (Stack)
+    const contentStack = new Gtk.Stack({ transition_type: Gtk.StackTransitionType.SLIDE_UP_DOWN });
     contentStack.margin_top = 20;
-    contentStack.margin_start = 10;
-    contentBox.append(contentStack);
+    contentStack.margin_start = 20;
+    contentStack.margin_end = 20;
+    contentStack.margin_bottom = 20;
+    contentStack.hexpand = true;
+    bodyBox.append(contentStack);
     
-    // TAB 1: Advanced Forms & Icons
-    const formPage = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
-    contentStack.add_named(formPage, 'forms');
-    
-    const formCard = new QCard();
-    const formSection = new QCardSection();
-    
-    // Avatar & Icon
-    const avatarBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
-    const avatar = new QAvatar({ size: 64 });
-    avatar.append(new QIcon({ name: 'face-smile-symbolic', size: 32 }));
-    avatarBox.append(avatar.widget);
-    avatarBox.append(new QLabel({ label: '<b>User Profile</b>', useMarkup: true }).widget);
-    formSection.append({ widget: avatarBox }); // Temporary hack to append raw GTK widget wrapper
-    
-    // Select
-    const fruit = ref('Apple');
-    formSection.append(new QLabel({ label: 'Favorite Fruit:' }));
-    formSection.append(new QSelect({ 
-        options: ['Apple', 'Banana', 'Cherry', 'Date'],
-        modelValue: fruit 
-    }));
-    
-    // Slider
-    const volume = ref(50);
-    formSection.append(new QLabel({ label: 'Volume:' }));
-    formSection.append(new QSlider({ min: 0, max: 100, step: 1, modelValue: volume }));
-    
-    // Menu (Popover)
-    const isMenuOpen = ref(false);
-    const menuBtn = new QBtn({ 
-        label: 'Options Menu ▾',
-        onClick: () => { isMenuOpen.value = true; }
-    });
-    const menu = new QMenu({ modelValue: isMenuOpen });
-    
-    const menuList = new QList();
-    const menuItem1 = new QItem();
-    menuItem1.append(new QLabel({ label: 'Save' }));
-    const menuItem2 = new QItem();
-    menuItem2.append(new QLabel({ label: 'Delete' }));
-    menuList.append(menuItem1);
-    menuList.append(menuItem2);
-    
-    menu.append(menuList);
-    menu.mount(menuBtn.widget); // Attach popover to button
-    
-    formSection.append(menuBtn);
-    
-    formCard.append(formSection);
-    formPage.append(formCard.widget);
-    
-    // TAB 2: Data View
-    const dataPage = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
-    contentStack.add_named(dataPage, 'data');
-    
-    const tableCard = new QCard();
-    const tableSection = new QCardSection();
-    const columns = [
-        { name: 'id', label: 'ID', field: 'id' },
-        { name: 'name', label: 'Name', field: 'name' }
-    ];
-    const rows = ref([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]);
-    tableSection.append(new QTable({ columns, rows }));
-    tableCard.append(tableSection);
-    dataPage.append(tableCard.widget);
+    contentStack.add_named(buildIntroPage(), 'intro');
+    contentStack.add_named(buildLayoutPage(), 'layout');
+    contentStack.add_named(buildFormsPage(win), 'forms');
+    contentStack.add_named(buildDataPage(), 'data');
+    contentStack.add_named(buildFeedbackPage(win), 'feedback');
     
     effect(() => {
-        contentStack.set_visible_child_name(activeTab.value);
+        contentStack.set_visible_child_name(activePage.value);
     });
     
     win.set_child(rootLayout.widget);
