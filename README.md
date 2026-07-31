@@ -110,5 +110,8 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 - `QSpinner` (`Gtk.Spinner`)
 - `QProgressBar` (`Gtk.ProgressBar`)
 
+**Advanced Integrations**
+- `QWebView` (Native `WebKit 6.0` integration with reactive URL/HTML bindings)
+
 ## License
 MIT License

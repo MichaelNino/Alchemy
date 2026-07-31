@@ -9,7 +9,7 @@ import {
     QTabs, QTab, QTable,
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
-    QDialog, QNotify, QSpinner, QProgressBar
+    QDialog, QNotify, QSpinner, QProgressBar, QWebView
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -257,6 +257,44 @@ function buildFeedbackPage(win) {
     return page;
 }
 
+function buildWebPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<b>QWebView Integration</b>', useMarkup: true }));
+    
+    const urlRef = ref('https://quasar.dev/');
+    const inputUrl = ref('https://quasar.dev/');
+    
+    const controlBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+    controlBox.margin_bottom = 10;
+    
+    controlBox.append(new QLabel({ label: 'URL:' }).widget);
+    const urlInput = new QInput({ modelValue: inputUrl, placeholder: 'Enter URL and click Go' });
+    urlInput.widget.hexpand = true;
+    controlBox.append(urlInput.widget);
+    
+    controlBox.append(new QBtn({ label: 'Go', onClick: () => { urlRef.value = inputUrl.value; } }).widget);
+    
+    section.append({ widget: controlBox });
+    
+    const webView = new QWebView({ url: urlRef });
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+    
+    // Give the webview some height in the card
+    const webBox = new Gtk.Box({ vexpand: true, hexpand: true });
+    webBox.height_request = 400;
+    webBox.append(webView.widget);
+    
+    section.append({ widget: webBox });
+    
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -295,7 +333,8 @@ app.connect('activate', () => {
         { id: 'layout', label: 'Layout & Nav', icon: 'view-grid-symbolic' },
         { id: 'forms', label: 'Forms & Validation', icon: 'format-text-direction-ltr-symbolic' },
         { id: 'data', label: 'Data & Content', icon: 'view-list-symbolic' },
-        { id: 'feedback', label: 'Feedback & Modals', icon: 'dialog-information-symbolic' }
+        { id: 'feedback', label: 'Feedback & Modals', icon: 'dialog-information-symbolic' },
+        { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' }
     ];
     
     const activePage = ref('intro');
@@ -338,6 +377,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildFormsPage(win), 'forms');
     contentStack.add_named(buildDataPage(), 'data');
     contentStack.add_named(buildFeedbackPage(win), 'feedback');
+    contentStack.add_named(buildWebPage(), 'web');
     
     effect(() => {
         contentStack.set_visible_child_name(activePage.value);
