@@ -41,8 +41,12 @@ export class QMenu extends BaseComponent {
         if (root) {
             attachCleanup(root);
         } else {
-            parentWidget.connect('notify::root', () => {
-                attachCleanup(parentWidget.get_root());
+            const sigId = parentWidget.connect('notify::root', () => {
+                const newRoot = parentWidget.get_root();
+                if (newRoot) {
+                    attachCleanup(newRoot);
+                    parentWidget.disconnect(sigId);
+                }
             });
         }
     }
