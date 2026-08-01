@@ -9,7 +9,7 @@ import {
     QTabs, QTab, QTable,
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
-    QDialog, QNotify, QSpinner, QProgressBar, QWebView
+    QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -295,6 +295,28 @@ function buildWebPage() {
     return page;
 }
 
+function buildMediaPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<b>QAudioPlayer Integration</b>', useMarkup: true }));
+    section.append(new QLabel({ label: 'A highly extensible, HTML5-like native audio player. Currently using the GStreamer engine.' }));
+    
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+
+    // Use a royalty-free test audio stream from an open internet radio or dummy mp3
+    const testAudioUri = ref('https://file-examples.com/storage/fe3c93081e66a3b2ab8eb74/2017/11/file_example_MP3_700KB.mp3');
+    
+    const audioPlayer = new QAudioPlayer({ src: testAudioUri });
+    section.append(audioPlayer);
+
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -334,7 +356,8 @@ app.connect('activate', () => {
         { id: 'forms', label: 'Forms & Validation', icon: 'format-text-direction-ltr-symbolic' },
         { id: 'data', label: 'Data & Content', icon: 'view-list-symbolic' },
         { id: 'feedback', label: 'Feedback & Modals', icon: 'dialog-information-symbolic' },
-        { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' }
+        { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' },
+        { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' }
     ];
     
     const activePage = ref('intro');
@@ -378,6 +401,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildDataPage(), 'data');
     contentStack.add_named(buildFeedbackPage(win), 'feedback');
     contentStack.add_named(buildWebPage(), 'web');
+    contentStack.add_named(buildMediaPage(), 'media');
     
     effect(() => {
         contentStack.set_visible_child_name(activePage.value);
