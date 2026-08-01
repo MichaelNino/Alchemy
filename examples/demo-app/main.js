@@ -305,8 +305,8 @@ function buildMediaPage() {
     
     section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
 
-    // Use a royalty-free test audio stream from an open internet radio or dummy mp3
-    const testAudioUri = ref('https://file-examples.com/storage/fe3c93081e66a3b2ab8eb74/2017/11/file_example_MP3_700KB.mp3');
+    // Use a royalty-free test audio stream
+    const testAudioUri = ref('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
     
     const audioPlayer = new QAudioPlayer({ src: testAudioUri });
     section.append(audioPlayer);

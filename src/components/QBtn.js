@@ -14,6 +14,14 @@ export class QBtn extends BaseComponent {
             }
         }
         
+        if (props.icon !== undefined) {
+            if (props.icon.value !== undefined) {
+                this.bindProp('icon_name', props.icon);
+            } else {
+                this.widget.icon_name = props.icon;
+            }
+        }
+        
         if (props.onClick) {
             this.on('clicked', props.onClick);
         }

@@ -112,6 +112,7 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 
 **Advanced Integrations**
 - `QWebView` (Native `WebKit 6.0` integration with reactive URL/HTML bindings)
+- `QAudioPlayer` (Extensible, HTML5-like audio player powered by GStreamer for advanced multimedia and WebRTC integration)
 
 ## License
 MIT License

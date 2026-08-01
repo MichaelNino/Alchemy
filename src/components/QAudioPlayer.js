@@ -55,7 +55,7 @@ export class QAudioPlayer extends BaseComponent {
         const scrubber = new QSlider({
             min: 0,
             max: computed(() => this.engine.duration.value || 100),
-            modelValue: computed(() => this.engine.currentTime.value)
+            modelValue: this.engine.currentTime
         });
         scrubber.widget.hexpand = true;
         
