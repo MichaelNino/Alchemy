@@ -1,6 +1,6 @@
 import Gtk from 'gi://Gtk?version=4.0';
 import { BaseComponent } from '../component.js';
-import { effect, ref } from '../reactivity.js';
+import { effect } from '../reactivity.js';
 import { QBtn } from './QBtn.js';
 
 export class QTransfer extends BaseComponent {
@@ -10,9 +10,6 @@ export class QTransfer extends BaseComponent {
         this.options = props.options || [];
         this.modelValue = props.modelValue;
 
-        this.sourceSelection = ref([]);
-        this.targetSelection = ref([]);
-
         // Left List (Source)
         const leftScroll = new Gtk.ScrolledWindow({
             min_content_width: 250,
@@ -21,10 +18,10 @@ export class QTransfer extends BaseComponent {
             hexpand: true,
             vexpand: true
         });
-        const leftList = new Gtk.ListBox({
-            selection_mode: Gtk.SelectionMode.NONE
+        this.leftList = new Gtk.ListBox({
+            selection_mode: Gtk.SelectionMode.MULTIPLE
         });
-        leftScroll.set_child(leftList);
+        leftScroll.set_child(this.leftList);
 
         // Middle Controls
         const middleBox = new Gtk.Box({ 
@@ -58,10 +55,10 @@ export class QTransfer extends BaseComponent {
             hexpand: true,
             vexpand: true
         });
-        const rightList = new Gtk.ListBox({
-            selection_mode: Gtk.SelectionMode.NONE
+        this.rightList = new Gtk.ListBox({
+            selection_mode: Gtk.SelectionMode.MULTIPLE
         });
-        rightScroll.set_child(rightList);
+        rightScroll.set_child(this.rightList);
 
         this.widget.append(leftScroll);
         this.widget.append(middleBox);
@@ -71,58 +68,55 @@ export class QTransfer extends BaseComponent {
             const targetValues = this.modelValue.value || [];
             
             let child;
-            while ((child = leftList.get_first_child()) != null) leftList.remove(child);
-            while ((child = rightList.get_first_child()) != null) rightList.remove(child);
+            while ((child = this.leftList.get_first_child()) != null) this.leftList.remove(child);
+            while ((child = this.rightList.get_first_child()) != null) this.rightList.remove(child);
             
             // Build Source List
             this.options.filter(opt => !targetValues.includes(opt.value)).forEach(opt => {
-                leftList.append(this._createRow(opt, this.sourceSelection));
+                this.leftList.append(this._createRow(opt));
             });
             
             // Build Target List
             this.options.filter(opt => targetValues.includes(opt.value)).forEach(opt => {
-                rightList.append(this._createRow(opt, this.targetSelection));
+                this.rightList.append(this._createRow(opt));
             });
         });
     }
 
-    _createRow(opt, selectionRef) {
+    _createRow(opt) {
         const row = new Gtk.ListBoxRow();
-        const box = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10, margin_start: 8, margin_end: 8, margin_top: 8, margin_bottom: 8 });
+        row._optValue = opt.value; // Store value on row for retrieval later
         
-        const check = new Gtk.CheckButton({ label: opt.label });
-        
-        check.active = selectionRef.value.includes(opt.value);
-        
-        check.connect('toggled', () => {
-            if (check.active) {
-                if (!selectionRef.value.includes(opt.value)) {
-                    selectionRef.value = [...selectionRef.value, opt.value];
-                }
-            } else {
-                selectionRef.value = selectionRef.value.filter(v => v !== opt.value);
-            }
+        const label = new Gtk.Label({ 
+            label: opt.label, 
+            xalign: 0, 
+            margin_start: 15, 
+            margin_end: 15, 
+            margin_top: 10, 
+            margin_bottom: 10 
         });
         
-        box.append(check);
-        row.set_child(box);
+        row.set_child(label);
         return row;
     }
 
     _moveRight() {
-        if (this.sourceSelection.value.length === 0) return;
+        const rows = this.leftList.get_selected_rows();
+        if (!rows || rows.length === 0) return;
+        
+        const toAdd = rows.map(row => row._optValue);
         
         const current = this.modelValue.value || [];
-        this.modelValue.value = [...current, ...this.sourceSelection.value];
-        this.sourceSelection.value = [];
+        this.modelValue.value = [...current, ...toAdd];
     }
 
     _moveLeft() {
-        if (this.targetSelection.value.length === 0) return;
+        const rows = this.rightList.get_selected_rows();
+        if (!rows || rows.length === 0) return;
+        
+        const toRemove = rows.map(row => row._optValue);
         
         const current = this.modelValue.value || [];
-        const toRemove = this.targetSelection.value;
         this.modelValue.value = current.filter(val => !toRemove.includes(val));
-        this.targetSelection.value = [];
     }
 }
