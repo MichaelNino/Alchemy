@@ -340,7 +340,7 @@ function buildMediaPage() {
     
     // Native Gtk.Video player
     const videoPlayerNative = new QVideoPlayer({ 
-        src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 
+        src: 'http://vjs.zencdn.net/v/oceans.mp4', 
         engine: 'native',
         controls: true 
     });
@@ -356,7 +356,7 @@ function buildMediaPage() {
     
     // HTML5 WebKit player
     const videoPlayerWeb = new QVideoPlayer({ 
-        src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 
+        src: 'http://vjs.zencdn.net/v/oceans.mp4', 
         engine: 'web',
         controls: true 
     });
