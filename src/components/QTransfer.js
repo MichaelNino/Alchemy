@@ -18,7 +18,7 @@ export class QTransfer extends BaseComponent {
 
         // Left List (Source)
         const leftScroll = new Gtk.ScrolledWindow({
-            min_content_width: 250,
+            min_content_width: 100,
             min_content_height: 300,
             has_frame: true,
             hexpand: true,
@@ -55,7 +55,7 @@ export class QTransfer extends BaseComponent {
 
         // Right List (Target)
         const rightScroll = new Gtk.ScrolledWindow({
-            min_content_width: 250,
+            min_content_width: 100,
             min_content_height: 300,
             has_frame: true,
             hexpand: true,

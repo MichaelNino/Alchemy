@@ -775,7 +775,11 @@ app.connect('activate', () => {
     const contentScroll = new Gtk.ScrolledWindow({ hexpand: true, vexpand: true });
     contentScroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
     
-    const contentStack = new Gtk.Stack({ transition_type: Gtk.StackTransitionType.SLIDE_UP_DOWN });
+    const contentStack = new Gtk.Stack({ 
+        transition_type: Gtk.StackTransitionType.SLIDE_UP_DOWN,
+        hhomogeneous: false,
+        vhomogeneous: false
+    });
     contentStack.margin_top = 20;
     contentStack.margin_start = 20;
     contentStack.margin_end = 20;
