@@ -725,7 +725,7 @@ app.connect('activate', () => {
     toggleDrawerBtn.setTooltip('Toggle Navigation Menu');
     toolbar.prepend(toggleDrawerBtn);
     header.append(toolbar);
-    rootLayout.append(header);
+    win.set_titlebar(header.widget);
     
     const pageContainer = new QPageContainer();
     rootLayout.append(pageContainer);

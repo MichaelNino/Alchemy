@@ -109,6 +109,10 @@ export class QInput extends BaseComponent {
 
         popover.set_child(calendar);
         popover.set_parent(this.entry);
+        
+        this.entry.connect('destroy', () => {
+            popover.unparent();
+        });
 
         this.entry.connect('icon-press', (entry, iconPos) => {
             if (iconPos === Gtk.EntryIconPosition.SECONDARY) {
@@ -145,6 +149,10 @@ export class QInput extends BaseComponent {
 
         popover.set_child(box);
         popover.set_parent(this.entry);
+        
+        this.entry.connect('destroy', () => {
+            popover.unparent();
+        });
 
         this.entry.connect('icon-press', (entry, iconPos) => {
             if (iconPos === Gtk.EntryIconPosition.SECONDARY) {
