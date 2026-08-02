@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer
+    QDragSource, QDropTarget, QCodeViewer, QChart
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -518,6 +518,93 @@ function buildCodeViewerPage() {
     return page;
 }
 
+function buildChartsPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    
+    // Header
+    const headerCard = new QCard();
+    const headerSec = new QCardSection();
+    
+    const titleBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+    titleBox.append(new QLabel({ label: '<b>Native Charts (Cairo)</b>', useMarkup: true }).widget);
+    
+    const chartData = ref([
+        { label: 'Jan', value: 40 },
+        { label: 'Feb', value: 25 },
+        { label: 'Mar', value: 60 },
+        { label: 'Apr', value: 30 },
+        { label: 'May', value: 80 }
+    ]);
+    
+    const randBtn = new QBtn({
+        label: 'Randomize Data',
+        onClick: () => {
+            chartData.value = chartData.value.map(d => ({
+                label: d.label,
+                value: Math.floor(Math.random() * 100) + 10
+            }));
+        }
+    });
+    
+    // Push button to right
+    titleBox.append(new Gtk.Box({ hexpand: true }));
+    titleBox.append(randBtn.widget);
+    
+    headerSec.append({ widget: titleBox });
+    headerSec.append(new QLabel({ label: 'Blazingly fast, native GTK4 rendering using Cairo graphics. Zero DOM overhead.' }));
+    headerCard.append(headerSec);
+    page.append(headerCard.widget);
+
+    // Charts Container
+    const grid = new Gtk.Grid({ column_spacing: 20, row_spacing: 20, hexpand: true, vexpand: true });
+    
+    // 1. Bar Chart
+    const barCard = new QCard();
+    barCard.widget.hexpand = true;
+    barCard.widget.vexpand = true;
+    const barSec = new QCardSection();
+    barSec.widget.vexpand = true;
+    barSec.append(new QLabel({ label: '<b>Bar Chart</b>', useMarkup: true }));
+    
+    const barChart = new QChart({ type: 'bar', data: chartData, color: '#3584e4' }); // Blue
+    barChart.widget.height_request = 250;
+    barSec.append(barChart);
+    barCard.append(barSec);
+    grid.attach(barCard.widget, 0, 0, 1, 1);
+    
+    // 2. Line Chart
+    const lineCard = new QCard();
+    lineCard.widget.hexpand = true;
+    lineCard.widget.vexpand = true;
+    const lineSec = new QCardSection();
+    lineSec.widget.vexpand = true;
+    lineSec.append(new QLabel({ label: '<b>Line Chart</b>', useMarkup: true }));
+    
+    const lineChart = new QChart({ type: 'line', data: chartData, color: '#2ec27e' }); // Green
+    lineChart.widget.height_request = 250;
+    lineSec.append(lineChart);
+    lineCard.append(lineSec);
+    grid.attach(lineCard.widget, 1, 0, 1, 1);
+    
+    // 3. Pie Chart
+    const pieCard = new QCard();
+    pieCard.widget.hexpand = true;
+    pieCard.widget.vexpand = true;
+    const pieSec = new QCardSection();
+    pieSec.widget.vexpand = true;
+    pieSec.append(new QLabel({ label: '<b>Pie Chart</b>', useMarkup: true }));
+    
+    const pieChart = new QChart({ type: 'pie', data: chartData, color: '#e66100' }); // Orange
+    pieChart.widget.height_request = 250;
+    pieSec.append(pieChart);
+    pieCard.append(pieSec);
+    grid.attach(pieCard.widget, 0, 1, 2, 1);
+    
+    page.append(grid);
+
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -560,7 +647,8 @@ app.connect('activate', () => {
         { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' },
         { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' },
         { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' },
-        { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' }
+        { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' },
+        { id: 'charts', label: 'Charts & Analytics', icon: 'utilities-system-monitor-symbolic' }
     ];
     
     const activePage = ref('intro');
@@ -607,6 +695,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildMediaPage(), 'media');
     contentStack.add_named(buildKanbanPage(), 'kanban');
     contentStack.add_named(buildCodeViewerPage(), 'code');
+    contentStack.add_named(buildChartsPage(), 'charts');
     
     effect(() => {
         contentStack.set_visible_child_name(activePage.value);

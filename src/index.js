@@ -31,3 +31,4 @@ export { QAudioPlayer } from './components/QAudioPlayer.js';
 export { QDragSource } from './utils/QDragSource.js';
 export { QDropTarget } from './utils/QDropTarget.js';
 export { QCodeViewer } from './components/QCodeViewer.js';
+export { QChart } from './components/QChart.js';
