@@ -33,3 +33,4 @@ export { QDropTarget } from './utils/QDropTarget.js';
 export { QCodeViewer } from './components/QCodeViewer.js';
 export { QChart } from './components/QChart.js';
 export { QFile } from './components/QFile.js';
+export { QVideoPlayer } from './components/QVideoPlayer.js';

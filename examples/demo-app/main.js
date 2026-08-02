@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -317,23 +317,54 @@ function buildWebPage() {
 
 function buildMediaPage() {
     const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
-    const card = new QCard();
-    const section = new QCardSection();
     
-    section.append(new QLabel({ label: '<b>QAudioPlayer Integration</b>', useMarkup: true }));
-    section.append(new QLabel({ label: 'A highly extensible, HTML5-like native audio player. Currently using the GStreamer engine.' }));
+    const audioCard = new QCard();
+    const audioSec = new QCardSection();
     
-    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+    audioSec.append(new QLabel({ label: '<b>QAudioPlayer Integration</b>', useMarkup: true }));
+    audioSec.append(new QLabel({ label: 'A highly extensible, HTML5-like native audio player. Currently using the GStreamer engine.' }));
+    audioSec.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
 
     // Use a royalty-free test audio stream
     const testAudioUri = ref('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-    
     const audioPlayer = new QAudioPlayer({ src: testAudioUri });
-    section.append(audioPlayer);
-
-    card.append(section);
-    page.append(card.widget);
+    audioSec.append(audioPlayer);
     
+    audioCard.append(audioSec);
+    page.append(audioCard.widget);
+
+    // QVideoPlayer Native
+    const videoCardNative = new QCard();
+    const videoSecNative = new QCardSection();
+    videoSecNative.append(new QLabel({ label: '<b>QVideoPlayer</b> (Native Gtk.Video engine)', useMarkup: true }));
+    
+    // Native Gtk.Video player
+    const videoPlayerNative = new QVideoPlayer({ 
+        src: 'https://www.w3schools.com/html/mov_bbb.mp4', 
+        engine: 'native',
+        controls: true 
+    });
+    videoPlayerNative.widget.height_request = 200;
+    videoSecNative.append(videoPlayerNative);
+    videoCardNative.append(videoSecNative);
+    page.append(videoCardNative.widget);
+    
+    // QVideoPlayer Web
+    const videoCardWeb = new QCard();
+    const videoSecWeb = new QCardSection();
+    videoSecWeb.append(new QLabel({ label: '<b>QVideoPlayer</b> (HTML5 WebKit engine)', useMarkup: true }));
+    
+    // HTML5 WebKit player
+    const videoPlayerWeb = new QVideoPlayer({ 
+        src: 'https://www.w3schools.com/html/mov_bbb.mp4', 
+        engine: 'web',
+        controls: true 
+    });
+    videoPlayerWeb.widget.height_request = 200;
+    videoSecWeb.append(videoPlayerWeb);
+    videoCardWeb.append(videoSecWeb);
+    page.append(videoCardWeb.widget);
+
     return page;
 }
 
