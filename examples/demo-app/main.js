@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget
+    QDragSource, QDropTarget, QCodeViewer
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -451,6 +451,71 @@ function buildKanbanPage() {
     return page;
 }
 
+function buildCodeViewerPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    
+    // Header
+    const headerCard = new QCard();
+    const headerSec = new QCardSection();
+    headerSec.append(new QLabel({ label: '<b>Native Syntax Highlighting (QCodeViewer)</b>', useMarkup: true }));
+    headerSec.append(new QLabel({ label: 'Powered by GtkSourceView 5 for blazingly fast, native syntax parsing.' }));
+    headerCard.append(headerSec);
+    page.append(headerCard.widget);
+
+    // Languages and Snippets
+    const langs = [
+        { id: 'markdown', name: 'Markdown', langId: 'markdown', code: '# Hello Markdown\n\nThis is a **markdown** file rendering inside our native QCodeViewer component!\n\n- It is fast\n- It is native\n- It is beautiful' },
+        { id: 'html', name: 'HTML', langId: 'html', code: '<!DOCTYPE html>\n<html>\n<head>\n  <title>Alchemy HTML</title>\n</head>\n<body>\n  <div class="app">\n    <h1>Hello World</h1>\n  </div>\n</body>\n</html>' },
+        { id: 'css', name: 'CSS', langId: 'css', code: 'body {\n  margin: 0;\n  padding: 0;\n  background-color: #1e1e1e;\n  color: white;\n}\n\n.app h1 {\n  font-size: 2rem;\n  text-align: center;\n}' },
+        { id: 'js', name: 'JavaScript', langId: 'javascript', code: 'import { ref, effect } from "alchemy";\n\nexport function setup() {\n  const count = ref(0);\n  \n  effect(() => {\n    console.log(`Count changed to: ${count.value}`);\n  });\n  \n  return { count };\n}' },
+        { id: 'ts', name: 'TypeScript', langId: 'typescript', code: 'interface User {\n  id: number;\n  name: string;\n}\n\nfunction getUser(id: number): User {\n  return {\n    id,\n    name: "Alchemy Developer"\n  };\n}' },
+        { id: 'php', name: 'PHP', langId: 'php', code: '<?php\nnamespace Alchemy\\Demo;\n\nclass Server {\n    public function boot(): void {\n        echo "Server is booting up...";\n    }\n}\n\n$app = new Server();\n$app->boot();\n?>' },
+        { id: 'java', name: 'Java', langId: 'java', code: 'package org.alchemy.demo;\n\npublic class Application {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java!");\n        \n        var list = java.util.List.of(1, 2, 3);\n        list.forEach(System.out::println);\n    }\n}' },
+        { id: 'cs', name: 'C#', langId: 'c-sharp', code: 'using System;\nusing System.Linq;\n\nnamespace AlchemyDemo {\n    class Program {\n        static void Main(string[] args) {\n            var numbers = new[] { 1, 2, 3, 4, 5 };\n            var evens = numbers.Where(n => n % 2 == 0);\n            Console.WriteLine($"Evens: {string.Join(", ", evens)}");\n        }\n    }\n}' },
+        { id: 'py', name: 'Python', langId: 'python', code: 'import os\nimport sys\n\ndef main():\n    message = "Welcome to Alchemy"\n    print(f"{message}, Python developer!")\n    \n    for i in range(5):\n        print(f"Iteration {i}")\n\nif __name__ == "__main__":\n    main()' },
+        { id: 'cpp', name: 'C++', langId: 'cpp', code: '#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> nums = {1, 2, 3, 4, 5};\n    \n    for(const auto& num : nums) {\n        std::cout << "Number: " << num << std::endl;\n    }\n    \n    return 0;\n}' },
+        { id: 'rust', name: 'Rust', langId: 'rust', code: 'fn main() {\n    let name = "Rustacean";\n    println!("Hello, {}!", name);\n    \n    let numbers = vec![1, 2, 3];\n    for n in numbers {\n        println!("Num: {}", n);\n    }\n}' },
+        { id: 'go', name: 'Go', langId: 'go', code: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, Go developer!")\n    \n    nums := []int{1, 2, 3, 4, 5}\n    for i, num := range nums {\n        fmt.Printf("Index: %d, Value: %d\\n", i, num)\n    }\n}' },
+        { id: 'kotlin', name: 'Kotlin', langId: 'kotlin', code: 'fun main() {\n    val message = "Hello from Kotlin!"\n    println(message)\n    \n    val numbers = listOf(1, 2, 3)\n    numbers.forEach { println("Number: $it") }\n}' }
+    ];
+
+    const activeTab = ref('markdown');
+    const tabs = new QTabs({ modelValue: activeTab });
+    
+    // Create tabs
+    langs.forEach(l => {
+        tabs.append(new QTab({ name: l.id, label: l.name }));
+    });
+    
+    page.append(tabs.widget);
+    
+    // Bind CodeViewer
+    const currentCode = computed(() => {
+        const lang = langs.find(l => l.id === activeTab.value);
+        return lang ? lang.code : '';
+    });
+    
+    const currentLangId = computed(() => {
+        const lang = langs.find(l => l.id === activeTab.value);
+        return lang ? lang.langId : 'text';
+    });
+    
+    const viewer = new QCodeViewer({ code: currentCode, language: currentLangId });
+    viewer.widget.vexpand = true;
+    
+    const card = new QCard();
+    card.widget.vexpand = true;
+    const sec = new QCardSection();
+    sec.widget.vexpand = true;
+    
+    sec.append(viewer);
+    card.append(sec);
+    
+    page.append(card.widget);
+
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -492,7 +557,8 @@ app.connect('activate', () => {
         { id: 'feedback', label: 'Feedback & Modals', icon: 'dialog-information-symbolic' },
         { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' },
         { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' },
-        { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' }
+        { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' },
+        { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' }
     ];
     
     const activePage = ref('intro');
@@ -538,6 +604,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildWebPage(), 'web');
     contentStack.add_named(buildMediaPage(), 'media');
     contentStack.add_named(buildKanbanPage(), 'kanban');
+    contentStack.add_named(buildCodeViewerPage(), 'code');
     
     effect(() => {
         contentStack.set_visible_child_name(activePage.value);
