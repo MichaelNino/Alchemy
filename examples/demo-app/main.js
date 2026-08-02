@@ -337,7 +337,7 @@ function buildKanbanPage() {
     ]);
 
     // Board container
-    const board = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 20, hexpand: true, vexpand: true });
+    const board = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 20, hexpand: true, vexpand: true, homogeneous: true });
     
     const statuses = [
         { id: 'todo', label: 'To Do' },
