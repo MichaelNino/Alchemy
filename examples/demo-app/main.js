@@ -476,7 +476,9 @@ function buildCodeViewerPage() {
         { id: 'cpp', name: 'C++', langId: 'cpp', code: '#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> nums = {1, 2, 3, 4, 5};\n    \n    for(const auto& num : nums) {\n        std::cout << "Number: " << num << std::endl;\n    }\n    \n    return 0;\n}' },
         { id: 'rust', name: 'Rust', langId: 'rust', code: 'fn main() {\n    let name = "Rustacean";\n    println!("Hello, {}!", name);\n    \n    let numbers = vec![1, 2, 3];\n    for n in numbers {\n        println!("Num: {}", n);\n    }\n}' },
         { id: 'go', name: 'Go', langId: 'go', code: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, Go developer!")\n    \n    nums := []int{1, 2, 3, 4, 5}\n    for i, num := range nums {\n        fmt.Printf("Index: %d, Value: %d\\n", i, num)\n    }\n}' },
-        { id: 'kotlin', name: 'Kotlin', langId: 'kotlin', code: 'fun main() {\n    val message = "Hello from Kotlin!"\n    println(message)\n    \n    val numbers = listOf(1, 2, 3)\n    numbers.forEach { println("Number: $it") }\n}' }
+        { id: 'kotlin', name: 'Kotlin', langId: 'kotlin', code: 'fun main() {\n    val message = "Hello from Kotlin!"\n    println(message)\n    \n    val numbers = listOf(1, 2, 3)\n    numbers.forEach { println("Number: $it") }\n}' },
+        { id: 'perl', name: 'Perl', langId: 'perl', code: '#!/usr/bin/perl\nuse strict;\nuse warnings;\n\nprint "Hello from Perl!\\n";\n\nmy @fruits = ("Apple", "Banana", "Cherry");\nforeach my $fruit (@fruits) {\n    print "Fruit: $fruit\\n";\n}' },
+        { id: 'raku', name: 'Raku', langId: 'raku', code: 'use v6;\n\nput "Hello from Raku!";\n\nmy @fruits = <Apple Banana Cherry>;\nfor @fruits -> $fruit {\n    put "Fruit: $fruit";\n}' }
     ];
 
     const activeTab = ref('markdown');
