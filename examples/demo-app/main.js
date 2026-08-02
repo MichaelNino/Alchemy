@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -206,6 +206,23 @@ function buildFormsPage(win) {
     const volume = ref(50);
     form.append(new QSlider({ min: 0, max: 100, step: 1, modelValue: volume }));
     
+    form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+
+    // --- 4. Transfer List ---
+    form.append(new QLabel({ label: '<b>Team Assignment (QTransfer)</b>', useMarkup: true }));
+    
+    const teamMembers = ref(['user1', 'user3']);
+    form.append(new QTransfer({
+        modelValue: teamMembers,
+        options: [
+            { label: 'Alice Smith (user1)', value: 'user1' },
+            { label: 'Bob Johnson (user2)', value: 'user2' },
+            { label: 'Charlie Brown (user3)', value: 'user3' },
+            { label: 'Diana Prince (user4)', value: 'user4' },
+            { label: 'Ethan Hunt (user5)', value: 'user5' }
+        ]
+    }));
+
     form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
     
     form.append(new QBtn({ label: 'Submit Form', onClick: () => form.submit() }));

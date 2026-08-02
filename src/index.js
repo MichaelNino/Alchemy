@@ -38,3 +38,4 @@ export { QKanban } from './components/QKanban.js';
 export { QKanbanCard } from './components/QKanbanCard.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
+export { QTransfer } from './components/QTransfer.js';
