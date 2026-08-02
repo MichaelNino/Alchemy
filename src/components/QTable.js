@@ -2,6 +2,14 @@ import Gtk from 'gi://Gtk?version=4.0';
 import { BaseComponent } from '../component.js';
 import { effect } from '../reactivity.js';
 
+const formatters = {
+    decimal: new Intl.NumberFormat(undefined, { style: 'decimal' }),
+    integer: new Intl.NumberFormat(undefined, { style: 'decimal', maximumFractionDigits: 0 }),
+    currency: new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }),
+    date: new Intl.DateTimeFormat(undefined, { dateStyle: 'short' }),
+    datetime: new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'short' })
+};
+
 export class QTable extends BaseComponent {
     constructor(props = {}) {
         super(new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10 }));
@@ -50,6 +58,24 @@ export class QTable extends BaseComponent {
         }
     }
     
+    formatCellValue(val, col, row) {
+        if (col.format) {
+            return col.format(val, row);
+        }
+        if (col.type && formatters[col.type] && val != null) {
+            try {
+                if (col.type === 'date' || col.type === 'datetime') {
+                    const dateVal = new Date(val);
+                    return formatters[col.type].format(dateVal);
+                }
+                return formatters[col.type].format(val);
+            } catch (e) {
+                return String(val);
+            }
+        }
+        return val != null ? String(val) : '';
+    }
+
     renderGrid(props, pagRef) {
         let child = this.grid.get_first_child();
         while (child) {
@@ -61,7 +87,20 @@ export class QTable extends BaseComponent {
         let rows = props.rows.value !== undefined ? props.rows.value : props.rows;
         const columns = props.columns;
         const pagination = pagRef.value;
+        const filterStr = (props.filter && props.filter.value !== undefined) ? props.filter.value : (props.filter || '');
         
+        // 1. Filtering
+        if (filterStr && filterStr.trim() !== '') {
+            const lowerFilter = filterStr.toLowerCase();
+            rows = rows.filter(row => {
+                return columns.some(col => {
+                    const formatted = this.formatCellValue(row[col.field], col, row);
+                    return String(formatted).toLowerCase().includes(lowerFilter);
+                });
+            });
+        }
+
+        // 2. Sorting
         if (pagination.sortBy) {
             rows = [...rows].sort((a, b) => {
                 const valA = a[pagination.sortBy];
@@ -72,6 +111,7 @@ export class QTable extends BaseComponent {
             });
         }
         
+        // 3. Pagination
         const maxPage = Math.ceil(rows.length / pagination.rowsPerPage) || 1;
         if (pagination.page > maxPage) pagination.page = maxPage;
         
@@ -82,6 +122,7 @@ export class QTable extends BaseComponent {
         const startIdx = (pagination.page - 1) * pagination.rowsPerPage;
         const paginatedRows = rows.slice(startIdx, startIdx + pagination.rowsPerPage);
         
+        // 4. Render Headers
         columns.forEach((col, idx) => {
             const btn = new Gtk.Button({ label: col.label });
             btn.add_css_class('flat');
@@ -104,10 +145,11 @@ export class QTable extends BaseComponent {
         const sep = new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL });
         this.grid.attach(sep, 0, 1, columns.length, 1);
         
+        // 5. Render Rows
         paginatedRows.forEach((row, rowIdx) => {
             columns.forEach((col, colIdx) => {
-                const cellVal = row[col.field];
-                const label = new Gtk.Label({ label: String(cellVal), xalign: 0 });
+                const formattedVal = this.formatCellValue(row[col.field], col, row);
+                const label = new Gtk.Label({ label: String(formattedVal), xalign: 0 });
                 label.margin_start = 10;
                 this.grid.attach(label, colIdx, rowIdx + 2, 1, 1);
             });

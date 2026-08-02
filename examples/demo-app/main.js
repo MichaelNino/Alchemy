@@ -167,21 +167,40 @@ function buildDataPage() {
     
     // Table Side
     const tableBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, hexpand: true });
-    tableBox.append(new QLabel({ label: '<b>Paginated QTable</b>', useMarkup: true }).widget);
+    
+    const tableHeader = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 20 });
+    tableHeader.append(new QLabel({ label: '<b>Paginated QTable</b>', useMarkup: true }).widget);
+    
+    const tableFilter = ref('');
+    const searchInput = new QInput({ placeholder: 'Search table...', modelValue: tableFilter });
+    searchInput.widget.hexpand = true;
+    tableHeader.append(searchInput.widget);
+    
+    tableBox.append(tableHeader);
     
     const columns = [
-        { name: 'id', label: 'ID', field: 'id' },
-        { name: 'name', label: 'Product Name', field: 'name' },
-        { name: 'price', label: 'Price ($)', field: 'price' }
+        { name: 'id', label: 'ID', field: 'id', type: 'integer' },
+        { name: 'name', label: 'Product', field: 'name' },
+        { name: 'price', label: 'Price', field: 'price', type: 'currency' },
+        { name: 'rating', label: 'Rating', field: 'rating', type: 'decimal' },
+        { name: 'added', label: 'Added (Date)', field: 'added', type: 'date' }
     ];
+    
     const rowData = [];
+    const baseDate = new Date();
     for (let i = 1; i <= 25; i++) {
-        rowData.push({ id: i, name: `Item ${i}`, price: Math.floor(Math.random() * 100) + 10 });
+        rowData.push({ 
+            id: i, 
+            name: `Item ${i}`, 
+            price: Math.random() * 1000 + 10,
+            rating: Math.random() * 5,
+            added: new Date(baseDate.getTime() - Math.random() * 10000000000).toISOString()
+        });
     }
     const rows = ref(rowData);
     const pagination = ref({ page: 1, rowsPerPage: 8, sortBy: null, descending: false });
     
-    tableBox.append(new QTable({ columns, rows, pagination }).widget);
+    tableBox.append(new QTable({ columns, rows, pagination, filter: tableFilter }).widget);
     
     // Progress bar linked to pagination
     const progress = computed(() => {
