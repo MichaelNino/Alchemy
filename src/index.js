@@ -39,6 +39,7 @@ export { QKanbanCard } from './components/QKanbanCard.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
 export { QTransfer } from './components/QTransfer.js';
+export { QSplitter } from "./components/QSplitter.js";
 
 // Layout & Grid
 export { QScreen } from './plugins/QScreen.js';

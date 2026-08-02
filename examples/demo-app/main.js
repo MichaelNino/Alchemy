@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -771,8 +771,6 @@ app.connect('activate', () => {
     });
     
     drawer.append(drawerList);
-    pageContainer.append(drawer);
-    
     // Content Area (Stack)
     const contentScroll = new Gtk.ScrolledWindow({ hexpand: true, vexpand: true });
     contentScroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
@@ -784,7 +782,12 @@ app.connect('activate', () => {
     contentStack.margin_bottom = 20;
     
     contentScroll.set_child(contentStack);
-    pageContainer.append(contentScroll);
+    
+    const splitter = new QSplitter({ horizontal: false, initialPosition: 250 });
+    splitter.setBefore(drawer);
+    splitter.setAfter(contentScroll);
+    
+    pageContainer.append(splitter);
     
     contentStack.add_named(buildIntroPage(), 'intro');
     contentStack.add_named(buildLayoutPage(), 'layout');
