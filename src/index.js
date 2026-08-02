@@ -1,7 +1,7 @@
 export { effect, ref, computed } from './reactivity.js';
 export { QBtn } from './components/QBtn.js';
 export { QInput } from './components/QInput.js';
-export { QLayout } from './components/QLayout.js';
+
 export { QCheckbox } from './components/QCheckbox.js';
 export { QToggle } from './components/QToggle.js';
 export { QRadio } from './components/QRadio.js';
@@ -15,7 +15,7 @@ export { QSpinner } from './components/QSpinner.js';
 export { QProgressBar } from './components/QProgressBar.js';
 export { QToolbar } from './components/QToolbar.js';
 export { QTabs, QTab } from './components/QTabs.js';
-export { QDrawer } from './components/QDrawer.js';
+
 export { QNotify } from './components/QNotify.js';
 export { QTable } from './components/QTable.js';
 export { QIcon } from './components/QIcon.js';
@@ -39,3 +39,8 @@ export { QKanbanCard } from './components/QKanbanCard.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
 export { QTransfer } from './components/QTransfer.js';
+
+// Layout & Grid
+export { QScreen } from './plugins/QScreen.js';
+export { QLayout, QHeader, QPageContainer, QDrawer } from './components/QLayout.js';
+export { QRow, QCol } from './components/QGrid.js';

@@ -50,6 +50,40 @@ function buildLayoutPage() {
     const card = new QCard();
     const section = new QCardSection();
     
+    section.append(new QLabel({ label: '<b>Responsive Grid System (QRow / QCol)</b>', useMarkup: true }));
+    section.append(new QLabel({ label: 'Resize the window! This grid automatically stacks vertically on small screens.', margin_bottom: 20 }));
+    
+    // First Row
+    const row1 = new QRow();
+    const col1 = new QCol();
+    col1.widget.add_css_class('card');
+    col1.append(new QLabel({ label: 'Col 1 (Auto)', margin_top: 20, margin_bottom: 20 }));
+    
+    const col2 = new QCol();
+    col2.widget.add_css_class('card');
+    col2.append(new QLabel({ label: 'Col 2 (Auto)', margin_top: 20, margin_bottom: 20 }));
+    
+    row1.append(col1);
+    row1.append(col2);
+    section.append(row1.widget);
+
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 20, margin_bottom: 20 }) });
+
+    // Second Row
+    const row2 = new QRow({ stackAt: 'md' });
+    const col3 = new QCol();
+    col3.widget.add_css_class('card');
+    col3.append(new QLabel({ label: 'Stacks at MD (< 1024px)', margin_top: 20, margin_bottom: 20 }));
+    
+    const col4 = new QCol();
+    col4.widget.add_css_class('card');
+    col4.append(new QLabel({ label: 'Stacks at MD (< 1024px)', margin_top: 20, margin_bottom: 20 }));
+    
+    row2.append(col3);
+    row2.append(col4);
+    section.append(row2.widget);
+    
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 20, margin_bottom: 20 }) });
     section.append(new QLabel({ label: '<b>Nested Tabs</b>', useMarkup: true }));
     
     const activeTab = ref('tab1');
@@ -683,19 +717,21 @@ app.connect('activate', () => {
     const rootLayout = new QLayout();
     
     // Header
+    const header = new QHeader({ elevated: true });
     const toolbar = new QToolbar({ title: 'Alchemy Showcase' });
     const isDrawerOpen = ref(true);
     const toggleDrawerBtn = new QBtn({ onClick: () => { isDrawerOpen.value = !isDrawerOpen.value; } });
     toggleDrawerBtn.widget.set_child(new QIcon({ name: 'open-menu-symbolic' }).widget);
     toggleDrawerBtn.setTooltip('Toggle Navigation Menu');
     toolbar.prepend(toggleDrawerBtn);
-    rootLayout.append(toolbar);
+    header.append(toolbar);
+    rootLayout.append(header);
     
-    const bodyBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
-    rootLayout.widget.append(bodyBox);
+    const pageContainer = new QPageContainer();
+    rootLayout.append(pageContainer);
     
     // Drawer Navigation
-    const drawer = new QDrawer({ modelValue: isDrawerOpen });
+    const drawer = new QDrawer({ modelValue: isDrawerOpen, breakpoint: 900 });
     const drawerList = new QList();
     
     const navItems = [
@@ -735,7 +771,7 @@ app.connect('activate', () => {
     });
     
     drawer.append(drawerList);
-    bodyBox.append(drawer.widget);
+    pageContainer.append(drawer);
     
     // Content Area (Stack)
     const contentScroll = new Gtk.ScrolledWindow({ hexpand: true, vexpand: true });
@@ -747,7 +783,7 @@ app.connect('activate', () => {
     contentStack.margin_bottom = 20;
     
     contentScroll.set_child(contentStack);
-    bodyBox.append(contentScroll);
+    pageContainer.append(contentScroll);
     
     contentStack.add_named(buildIntroPage(), 'intro');
     contentStack.add_named(buildLayoutPage(), 'layout');
