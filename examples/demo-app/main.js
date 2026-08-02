@@ -9,7 +9,8 @@ import {
     QTabs, QTab, QTable,
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
-    QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer
+    QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
+    QDragSource, QDropTarget
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -317,6 +318,104 @@ function buildMediaPage() {
     return page;
 }
 
+function buildKanbanPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    
+    // Header
+    const headerCard = new QCard();
+    const headerSec = new QCardSection();
+    headerSec.append(new QLabel({ label: '<b>Kanban Board (Drag &amp; Drop)</b>', useMarkup: true }));
+    headerCard.append(headerSec);
+    page.append(headerCard.widget);
+
+    // State
+    const tasks = ref([
+        { id: 1, title: 'Design Database Schema', status: 'todo' },
+        { id: 2, title: 'Implement DnD Controllers', status: 'in-progress' },
+        { id: 3, title: 'Create QAudioPlayer', status: 'done' },
+        { id: 4, title: 'Write Documentation', status: 'todo' }
+    ]);
+
+    // Board container
+    const board = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 20, hexpand: true, vexpand: true });
+    
+    const statuses = [
+        { id: 'todo', label: 'To Do' },
+        { id: 'in-progress', label: 'In Progress' },
+        { id: 'done', label: 'Done' }
+    ];
+
+    statuses.forEach(col => {
+        // Column Container
+        const colBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, hexpand: true, vexpand: true });
+        
+        // Column Title
+        const titleLabel = new QLabel({ label: `<b>${col.label}</b>`, useMarkup: true });
+        titleLabel.widget.margin_bottom = 10;
+        colBox.append(titleLabel.widget);
+        
+        // Make column a drop target
+        new QDropTarget({ widget: colBox }, {
+            onDrop: (payload) => {
+                const taskId = typeof payload === 'object' ? payload.id : parseInt(payload);
+                const taskList = tasks.value;
+                const task = taskList.find(t => t.id === taskId);
+                if (task && task.status !== col.id) {
+                    task.status = col.id;
+                    // Trigger reactivity by assigning a new array reference
+                    tasks.value = [...taskList];
+                }
+            }
+        });
+
+        // Reactive inner container for tasks
+        const tasksContainer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, vexpand: true });
+        colBox.append(tasksContainer);
+
+        effect(() => {
+            // Clear current tasks
+            let child = tasksContainer.get_first_child();
+            while (child) {
+                const next = child.get_next_sibling();
+                tasksContainer.remove(child);
+                child = next;
+            }
+
+            // Render tasks for this column
+            const colTasks = tasks.value.filter(t => t.status === col.id);
+            colTasks.forEach(task => {
+                const card = new QCard();
+                const sec = new QCardSection();
+                sec.append(new QLabel({ label: task.title }));
+                card.append(sec);
+                
+                // Add margins for aesthetics
+                card.widget.margin_bottom = 5;
+
+                // Make card a drag source
+                new QDragSource(card, { payload: JSON.stringify({ id: task.id }) });
+                
+                tasksContainer.append(card.widget);
+            });
+        });
+        
+        // Wrap column in a styled card for visual boundary
+        const colCard = new QCard();
+        colCard.widget.hexpand = true;
+        colCard.widget.vexpand = true;
+        
+        const colSec = new QCardSection();
+        colSec.widget.vexpand = true;
+        colSec.append({ widget: colBox });
+        colCard.append(colSec);
+
+        board.append(colCard.widget);
+    });
+
+    page.append(board);
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -357,7 +456,8 @@ app.connect('activate', () => {
         { id: 'data', label: 'Data & Content', icon: 'view-list-symbolic' },
         { id: 'feedback', label: 'Feedback & Modals', icon: 'dialog-information-symbolic' },
         { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' },
-        { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' }
+        { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' },
+        { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' }
     ];
     
     const activePage = ref('intro');
@@ -402,6 +502,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildFeedbackPage(win), 'feedback');
     contentStack.add_named(buildWebPage(), 'web');
     contentStack.add_named(buildMediaPage(), 'media');
+    contentStack.add_named(buildKanbanPage(), 'kanban');
     
     effect(() => {
         contentStack.set_visible_child_name(activePage.value);

@@ -28,3 +28,5 @@ export { QTree } from './components/QTree.js';
 export { QWebView } from './components/QWebView.js';
 export { AudioEngine } from './utils/AudioEngine.js';
 export { QAudioPlayer } from './components/QAudioPlayer.js';
+export { QDragSource } from './utils/QDragSource.js';
+export { QDropTarget } from './utils/QDropTarget.js';
