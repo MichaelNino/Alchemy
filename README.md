@@ -88,6 +88,7 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 - `QForm` (Validation orchestrator)
 - `QBtn` (`Gtk.Button`)
 - `QInput` (`Gtk.Entry` / `Gtk.PasswordEntry` with Rules/Validation)
+- `QFile` (Native file and directory selection dialog picker)
 - `QCheckbox` (`Gtk.CheckButton`)
 - `QRadio` (`Gtk.CheckButton` groups)
 - `QToggle` (`Gtk.Switch`)
@@ -115,6 +116,7 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 **Advanced Integrations**
 - `QWebView` (Native `WebKit 6.0` integration with reactive URL/HTML bindings)
 - `QAudioPlayer` (Extensible, HTML5-like audio player powered by GStreamer for advanced multimedia and WebRTC integration)
+- `QVideoPlayer` (Dual-engine video player supporting GTK4's native multimedia backend or HTML5 WebKit for complex streaming protocols)
 - `QDragSource` / `QDropTarget` (Universal Behavioral Controllers that effortlessly add native GTK4 drag-and-drop to any widget)
 
 ## License
