@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -366,119 +366,63 @@ function buildMediaPage() {
     page.append(videoCardWeb.widget);
 
     return page;
-}
-
-function buildKanbanPage() {
+}function buildKanbanPage() {
     const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
-    
+
     // Header
     const headerCard = new QCard();
     const headerSec = new QCardSection();
-    headerSec.append(new QLabel({ label: '<b>Kanban Board (Drag &amp; Drop)</b>', useMarkup: true }));
+    headerSec.append(new QLabel({ label: '<b>Kanban Board (QKanban)</b>', useMarkup: true }));
     headerCard.append(headerSec);
     page.append(headerCard.widget);
 
     // State
-    const tasks = ref([
-        { id: 1, title: 'Design Database Schema', status: 'todo' },
-        { id: 2, title: 'Implement DnD Controllers', status: 'in-progress' },
-        { id: 3, title: 'Create QAudioPlayer', status: 'done' },
-        { id: 4, title: 'Write Documentation', status: 'todo' },
-        { id: 5, title: 'Write Unit Tests', status: 'todo' },
-        { id: 6, title: 'Setup CI/CD Pipeline', status: 'todo' },
-        { id: 7, title: 'Fix Header Alignment', status: 'todo' },
-        { id: 8, title: 'Update README Examples', status: 'in-progress' },
-        { id: 9, title: 'Initial Project Setup', status: 'done' },
-        { id: 10, title: 'Review Pull Requests', status: 'todo' },
-        { id: 11, title: 'Deploy to Staging', status: 'todo' }
-    ]);
-
-    // Board container
-    const board = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 20, hexpand: true, vexpand: true, homogeneous: true });
-    
-    const statuses = [
+    const columns = ref([
         { id: 'todo', label: 'To Do' },
         { id: 'in-progress', label: 'In Progress' },
         { id: 'done', label: 'Done' }
-    ];
+    ]);
 
-    statuses.forEach(col => {
-        // Column Container
-        const colBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, hexpand: true, vexpand: true });
-        
-        // Column Title
-        const titleLabel = new QLabel({ label: `<b>${col.label}</b>`, useMarkup: true });
-        titleLabel.widget.margin_bottom = 10;
-        colBox.append(titleLabel.widget);
-        
-        // Make column a drop target
-        new QDropTarget({ widget: colBox }, {
-            onDrop: (payload) => {
-                const taskId = typeof payload === 'object' ? payload.id : parseInt(payload);
-                const taskList = tasks.value;
-                const task = taskList.find(t => t.id === taskId);
-                if (task && task.status !== col.id) {
-                    task.status = col.id;
-                    // Trigger reactivity by assigning a new array reference
-                    tasks.value = [...taskList];
-                }
-            }
-        });
+    const tasks = ref([
+        { id: 1, title: 'Design Database Schema', description: 'Create ERD and SQL scripts', status: 'todo', assignee: 'Alice', tags: ['Backend', 'DB'], color: '#e01b24' },
+        { id: 2, title: 'Implement DnD Controllers', description: 'Gtk.DropTarget integration', status: 'in-progress', assignee: 'Bob', tags: ['Frontend'], color: '#f6d32d' },
+        { id: 3, title: 'Create QAudioPlayer', status: 'done', assignee: 'Charlie', tags: ['Media'], color: '#2ec27e' },
+        { id: 4, title: 'Write Documentation', status: 'todo', tags: ['Docs'], color: '#3584e4' },
+        { id: 5, title: 'Write Unit Tests', status: 'todo', assignee: 'Alice', color: '#f6d32d' },
+        { id: 6, title: 'Setup CI/CD Pipeline', status: 'todo', assignee: 'Dave', color: '#e01b24' },
+        { id: 7, title: 'Fix Header Alignment', description: 'Header is off by 2px', status: 'todo', tags: ['Bug'], color: '#e01b24' },
+        { id: 8, title: 'Update README Examples', status: 'in-progress', assignee: 'Eve', tags: ['Docs'], color: '#3584e4' },
+        { id: 9, title: 'Initial Project Setup', status: 'done', color: '#2ec27e' }
+    ]);
 
-        // Scrollable window
-        const scroll = new Gtk.ScrolledWindow({
-            hexpand: true,
-            vexpand: true,
-            hscrollbar_policy: Gtk.PolicyType.NEVER,
-            vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
-        });
-
-        // Reactive inner container for tasks
-        const tasksContainer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, vexpand: true });
-        scroll.set_child(tasksContainer);
-        colBox.append(scroll);
-
-        effect(() => {
-            // Clear current tasks
-            let child = tasksContainer.get_first_child();
-            while (child) {
-                const next = child.get_next_sibling();
-                tasksContainer.remove(child);
-                child = next;
-            }
-
-            // Render tasks for this column
-            const colTasks = tasks.value.filter(t => t.status === col.id);
-            colTasks.forEach(task => {
-                const card = new QCard();
-                const sec = new QCardSection();
-                sec.append(new QLabel({ label: task.title }));
-                card.append(sec);
-                
-                // Add margins for aesthetics
-                card.widget.margin_bottom = 5;
-
-                // Make card a drag source
-                new QDragSource(card, { payload: JSON.stringify({ id: task.id }) });
-                
-                tasksContainer.append(card.widget);
+    const kanban = new QKanban({
+        columns,
+        tasks,
+        onTaskMove: (task, newStatus) => {
+            console.log(`Task ${task.id} moved to ${newStatus}`);
+        },
+        onTaskAdd: (colId) => {
+            console.log(`Add task in column ${colId}`);
+            // Mock addition
+            const newTasks = [...tasks.value];
+            newTasks.push({
+                id: Date.now(),
+                title: 'New Task',
+                status: colId,
+                color: '#986a44'
             });
-        });
-        
-        // Wrap column in a styled card for visual boundary
-        const colCard = new QCard();
-        colCard.widget.hexpand = true;
-        colCard.widget.vexpand = true;
-        
-        const colSec = new QCardSection();
-        colSec.widget.vexpand = true;
-        colSec.append({ widget: colBox });
-        colCard.append(colSec);
-
-        board.append(colCard.widget);
+            tasks.value = newTasks;
+        },
+        onTaskEdit: (task) => {
+            console.log(`Edit task ${task.id}`);
+        },
+        onTaskDelete: (task) => {
+            console.log(`Delete task ${task.id}`);
+            tasks.value = tasks.value.filter(t => t.id !== task.id);
+        }
     });
 
-    page.append(board);
+    page.append(kanban.widget);
     return page;
 }
 
