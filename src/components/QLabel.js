@@ -4,8 +4,11 @@ import { effect } from '../reactivity.js';
 
 export class QLabel extends BaseComponent {
     constructor(props = {}) {
-        super(new Gtk.Label({ xalign: 0, use_markup: props.useMarkup || false }));
-        
+        super(new Gtk.Label({ 
+            xalign: 0, 
+            use_markup: props.useMarkup || false,
+            wrap: props.wrap !== false
+        }));
         if (props.label !== undefined) {
             if (props.label.value !== undefined) {
                 effect(() => {
