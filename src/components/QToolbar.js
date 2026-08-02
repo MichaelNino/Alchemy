@@ -12,6 +12,8 @@ export class QToolbar extends BaseComponent {
             });
             this.widget.set_title_widget(titleLabel);
         }
+        
+        this.widget.hexpand = true;
     }
     
     append(childComponent) {

@@ -110,9 +110,28 @@ export class QInput extends BaseComponent {
         popover.set_child(calendar);
         popover.set_parent(this.entry);
         
-        this.entry.connect('destroy', () => {
-            popover.unparent();
-        });
+        const attachCleanup = (rootWidget) => {
+            if (rootWidget && rootWidget.connect && !this._dateCleanupConnected) {
+                this._dateCleanupConnected = true;
+                rootWidget.connect('close-request', () => {
+                    popover.unparent();
+                    return false;
+                });
+            }
+        };
+
+        const root = this.entry.get_root();
+        if (root) {
+            attachCleanup(root);
+        } else {
+            const sigId = this.entry.connect('notify::root', () => {
+                const newRoot = this.entry.get_root();
+                if (newRoot) {
+                    attachCleanup(newRoot);
+                    this.entry.disconnect(sigId);
+                }
+            });
+        }
 
         this.entry.connect('icon-press', (entry, iconPos) => {
             if (iconPos === Gtk.EntryIconPosition.SECONDARY) {
@@ -150,9 +169,28 @@ export class QInput extends BaseComponent {
         popover.set_child(box);
         popover.set_parent(this.entry);
         
-        this.entry.connect('destroy', () => {
-            popover.unparent();
-        });
+        const attachCleanupTime = (rootWidget) => {
+            if (rootWidget && rootWidget.connect && !this._timeCleanupConnected) {
+                this._timeCleanupConnected = true;
+                rootWidget.connect('close-request', () => {
+                    popover.unparent();
+                    return false;
+                });
+            }
+        };
+
+        const rootTime = this.entry.get_root();
+        if (rootTime) {
+            attachCleanupTime(rootTime);
+        } else {
+            const sigIdTime = this.entry.connect('notify::root', () => {
+                const newRootTime = this.entry.get_root();
+                if (newRootTime) {
+                    attachCleanupTime(newRootTime);
+                    this.entry.disconnect(sigIdTime);
+                }
+            });
+        }
 
         this.entry.connect('icon-press', (entry, iconPos) => {
             if (iconPos === Gtk.EntryIconPosition.SECONDARY) {

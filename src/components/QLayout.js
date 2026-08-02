@@ -14,7 +14,11 @@ export class QLayout extends BaseComponent {
         
         // Invisible size tracker
         const tracker = new Gtk.DrawingArea();
-        tracker.set_draw_func((area, cr, w, h) => {
+        tracker.hexpand = true;
+        tracker.vexpand = true;
+        tracker.halign = Gtk.Align.FILL;
+        tracker.valign = Gtk.Align.FILL;
+        tracker.connect('resize', (area, w, h) => {
             updateScreen(w, h);
         });
         tracker.can_target = false;
@@ -31,6 +35,7 @@ export class QLayout extends BaseComponent {
 export class QHeader extends BaseComponent {
     constructor(props = {}) {
         super(new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL }));
+        this.widget.hexpand = true;
         this.widget.add_css_class('q-header');
         
         if (props.elevated) {
