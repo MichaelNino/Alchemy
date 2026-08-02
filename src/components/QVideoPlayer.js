@@ -21,10 +21,16 @@ export class QVideoPlayer extends BaseComponent {
         let widget;
         
         if (engine === 'native') {
-            widget = new Gtk.Overlay();
+            widget = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
             const picture = new Gtk.Picture();
             picture.can_shrink = true;
-            widget.set_child(picture);
+            picture.vexpand = true;
+            
+            // Put picture in an overlay so we can catch clicks easily without expanding issues
+            const pictureOverlay = new Gtk.Overlay();
+            pictureOverlay.set_child(picture);
+            pictureOverlay.vexpand = true;
+            widget.append(pictureOverlay);
             
             let sink = null;
             try {
@@ -51,11 +57,12 @@ export class QVideoPlayer extends BaseComponent {
 
             if (props.controls !== false) {
                 const controlsBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
-                controlsBox.add_css_class('osd');
-                controlsBox.margin_bottom = 15;
-                controlsBox.margin_start = 15;
-                controlsBox.margin_end = 15;
-                controlsBox.valign = Gtk.Align.END;
+                // Remove OSD class since it's no longer floating
+                controlsBox.margin_top = 10;
+                controlsBox.margin_bottom = 10;
+                controlsBox.margin_start = 10;
+                controlsBox.margin_end = 10;
+                controlsBox.valign = Gtk.Align.CENTER;
                 
                 const playBtn = new QBtn({
                     icon: computed(() => mediaEngine.isPlaying.value ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic'),
@@ -87,7 +94,7 @@ export class QVideoPlayer extends BaseComponent {
                 const durLabel = new QLabel({ label: computed(() => formatTime(mediaEngine.duration.value)) });
                 controlsBox.append(durLabel.widget);
                 
-                widget.add_overlay(controlsBox);
+                widget.append(controlsBox);
             }
             
             // Add click-to-play on the video itself
@@ -99,7 +106,7 @@ export class QVideoPlayer extends BaseComponent {
                     mediaEngine.play();
                 }
             });
-            picture.add_controller(click);
+            pictureOverlay.add_controller(click);
 
             // Cleanup when removed from DOM
             widget.connect('destroy', () => {
@@ -116,7 +123,6 @@ export class QVideoPlayer extends BaseComponent {
                 const loadVideo = (src) => {
                     if (!src) return;
                     
-                    const controls = props.controls !== false ? 'controls' : '';
                     const autoplay = props.autoplay ? 'autoplay' : '';
                     const loop = props.loop ? 'loop' : '';
                     
@@ -124,13 +130,60 @@ export class QVideoPlayer extends BaseComponent {
                     <!DOCTYPE html>
                     <html>
                     <head>
+                        <meta charset="utf-8">
                         <style>
-                            body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-                            video { width: 100%; height: 100%; object-fit: contain; }
+                            body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; display: flex; flex-direction: column; }
+                            .video-container { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+                            video { max-width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; }
+                            .controls { height: 50px; background: #1e1e1e; display: ${props.controls !== false ? 'flex' : 'none'}; align-items: center; padding: 0 15px; gap: 15px; color: #ddd; font-family: sans-serif; font-size: 13px; }
+                            button { background: none; border: none; color: white; cursor: pointer; font-size: 16px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+                            button:hover { background: #333; border-radius: 4px; }
+                            input[type=range] { flex: 1; accent-color: #3584e4; cursor: pointer; }
                         </style>
                     </head>
                     <body>
-                        <video src="${src}" ${controls} ${autoplay} ${loop}></video>
+                        <div class="video-container">
+                            <video id="vid" src="${src}" ${autoplay} ${loop}></video>
+                        </div>
+                        <div class="controls">
+                            <button id="playBtn">▶</button>
+                            <span id="cur">0:00</span>
+                            <input type="range" id="seek" value="0" min="0" step="0.1">
+                            <span id="dur">0:00</span>
+                        </div>
+                        <script>
+                            const vid = document.getElementById('vid');
+                            const playBtn = document.getElementById('playBtn');
+                            const cur = document.getElementById('cur');
+                            const dur = document.getElementById('dur');
+                            const seek = document.getElementById('seek');
+                            
+                            function fmt(s) {
+                                if (isNaN(s)) return '0:00';
+                                const m = Math.floor(s/60);
+                                const ss = Math.floor(s%60).toString().padStart(2,'0');
+                                return m+':'+ss;
+                            }
+                            
+                            function toggle() { if(vid.paused) vid.play(); else vid.pause(); }
+                            playBtn.onclick = toggle;
+                            vid.onclick = toggle;
+                            
+                            vid.onplay = () => playBtn.textContent = '⏸';
+                            vid.onpause = () => playBtn.textContent = '▶';
+                            
+                            vid.onloadedmetadata = () => {
+                                dur.textContent = fmt(vid.duration);
+                                seek.max = vid.duration;
+                            };
+                            
+                            vid.ontimeupdate = () => {
+                                cur.textContent = fmt(vid.currentTime);
+                                if(document.activeElement !== seek) seek.value = vid.currentTime;
+                            };
+                            
+                            seek.oninput = () => vid.currentTime = seek.value;
+                        </script>
                     </body>
                     </html>
                     `;
