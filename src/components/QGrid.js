@@ -1,6 +1,6 @@
 import Gtk from 'gi://Gtk?version=4.0';
 import { BaseComponent } from '../component.js';
-import { effect } from '../reactivity.js';
+import { effect, ref } from '../reactivity.js';
 import { QScreen } from '../plugins/QScreen.js';
 
 export class QRow extends BaseComponent {
