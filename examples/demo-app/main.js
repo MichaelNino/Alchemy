@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -193,8 +193,14 @@ function buildFormsPage(win) {
     
     form.append(new QLabel({ label: 'Role:' }));
     const role = ref('User');
-    form.append(new QRadio({ label: 'User', value: 'User', modelValue: role }));
-    form.append(new QRadio({ label: 'Admin', value: 'Admin', modelValue: role }));
+    form.append(new QOptionGroup({
+        inline: true,
+        modelValue: role,
+        options: [
+            { label: 'User', value: 'User' },
+            { label: 'Admin', value: 'Admin' }
+        ]
+    }));
     
     form.append(new QLabel({ label: 'Volume:' }));
     const volume = ref(50);
