@@ -4,7 +4,7 @@ import Gtk from 'gi://Gtk?version=4.0';
 
 import { ref, effect, computed } from '../../src/index.js';
 import { 
-    QBtn, QLayout, QCard, QCardSection, 
+    QBtn, QLayout, QHeader, QPageContainer, QRow, QCol, QCard, QCardSection, 
     QList, QItem, QLabel, QToolbar, QDrawer,
     QTabs, QTab, QTable,
     QIcon, QAvatar, QSelect, QSlider, QMenu,
