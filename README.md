@@ -95,7 +95,8 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 - `QSlider` (`Gtk.Scale`)
 
 **Data Display**
-- `QTable` (Reactive, sortable, paginated Data Grids via `Gtk.Grid`)
+- `QTable` (Reactive Data Grids with built-in global filtering, sorting, and `Intl` native cell formatters)
+- `QCodeViewer` (Native syntax highlighting powered by `GtkSourceView 5` for HTML, Python, Rust, Go, Markdown, and more)
 - `QTree` (Recursive, animated hierarchical file explorers)
 - `QList` / `QItem` (`Gtk.ListBox`)
 - `QCard` / `QCardSection` (Styled container frames)
@@ -113,6 +114,7 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 **Advanced Integrations**
 - `QWebView` (Native `WebKit 6.0` integration with reactive URL/HTML bindings)
 - `QAudioPlayer` (Extensible, HTML5-like audio player powered by GStreamer for advanced multimedia and WebRTC integration)
+- `QDragSource` / `QDropTarget` (Universal Behavioral Controllers that effortlessly add native GTK4 drag-and-drop to any widget)
 
 ## License
 MIT License
