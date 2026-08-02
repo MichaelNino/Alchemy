@@ -333,7 +333,14 @@ function buildKanbanPage() {
         { id: 1, title: 'Design Database Schema', status: 'todo' },
         { id: 2, title: 'Implement DnD Controllers', status: 'in-progress' },
         { id: 3, title: 'Create QAudioPlayer', status: 'done' },
-        { id: 4, title: 'Write Documentation', status: 'todo' }
+        { id: 4, title: 'Write Documentation', status: 'todo' },
+        { id: 5, title: 'Write Unit Tests', status: 'todo' },
+        { id: 6, title: 'Setup CI/CD Pipeline', status: 'todo' },
+        { id: 7, title: 'Fix Header Alignment', status: 'todo' },
+        { id: 8, title: 'Update README Examples', status: 'in-progress' },
+        { id: 9, title: 'Initial Project Setup', status: 'done' },
+        { id: 10, title: 'Review Pull Requests', status: 'todo' },
+        { id: 11, title: 'Deploy to Staging', status: 'todo' }
     ]);
 
     // Board container
@@ -368,9 +375,18 @@ function buildKanbanPage() {
             }
         });
 
+        // Scrollable window
+        const scroll = new Gtk.ScrolledWindow({
+            hexpand: true,
+            vexpand: true,
+            hscrollbar_policy: Gtk.PolicyType.NEVER,
+            vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+        });
+
         // Reactive inner container for tasks
         const tasksContainer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, vexpand: true });
-        colBox.append(tasksContainer);
+        scroll.set_child(tasksContainer);
+        colBox.append(scroll);
 
         effect(() => {
             // Clear current tasks
