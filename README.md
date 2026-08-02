@@ -97,6 +97,7 @@ Alchemy is continually expanding. Currently, the following Quasar-inspired compo
 **Data Display**
 - `QTable` (Reactive Data Grids with built-in global filtering, sorting, and `Intl` native cell formatters)
 - `QCodeViewer` (Native syntax highlighting powered by `GtkSourceView 5` for HTML, Python, Rust, Go, Markdown, and more)
+- `QChart` (Blazingly fast, native hardware-accelerated charting engine powered by Cairo. Supports Bar, Line, and Pie charts)
 - `QTree` (Recursive, animated hierarchical file explorers)
 - `QList` / `QItem` (`Gtk.ListBox`)
 - `QCard` / `QCardSection` (Styled container frames)
