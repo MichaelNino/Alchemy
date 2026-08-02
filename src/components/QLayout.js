@@ -51,20 +51,39 @@ export class QHeader extends BaseComponent {
 
 export class QPageContainer extends BaseComponent {
     constructor(props = {}) {
-        super(new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true, vexpand: true }));
+        super(props.scrollable !== false ? new Gtk.ScrolledWindow() : new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL }));
+        
+        this.widget.hexpand = true;
+        this.widget.vexpand = true;
+        
+        if (props.scrollable !== false) {
+            this.widget.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
+            this.mainBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+            this.widget.set_child(this.mainBox);
+        } else {
+            this.mainBox = this.widget;
+        }
+        
         this.widget.add_css_class('q-page-container');
     }
     
     append(childComponent) {
         this.children.push(childComponent);
-        this.widget.append(childComponent.widget || childComponent);
+        this.mainBox.append(childComponent.widget || childComponent);
     }
 }
 
 export class QDrawer extends BaseComponent {
     constructor(props = {}) {
-        super(new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL }));
+        super(props.scrollable !== false ? new Gtk.ScrolledWindow() : new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL }));
         
+        if (props.scrollable !== false) {
+            this.widget.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
+            this.mainBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+            this.widget.set_child(this.mainBox);
+        } else {
+            this.mainBox = this.widget;
+        }
         this.breakpoint = props.breakpoint || 1024;
         this.modelValue = props.modelValue || ref(true);
         this.overlay = props.overlay || false;
@@ -94,6 +113,6 @@ export class QDrawer extends BaseComponent {
     
     append(childComponent) {
         this.children.push(childComponent);
-        this.widget.append(childComponent.widget || childComponent);
+        this.mainBox.append(childComponent.widget || childComponent);
     }
 }
