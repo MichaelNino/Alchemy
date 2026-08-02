@@ -442,7 +442,9 @@ function buildMediaPage() {
     page.append(videoCardWeb.widget);
 
     return page;
-}function buildKanbanPage() {
+}
+
+function buildKanbanPage() {
     const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
 
     // Header
@@ -736,13 +738,16 @@ app.connect('activate', () => {
     bodyBox.append(drawer.widget);
     
     // Content Area (Stack)
+    const contentScroll = new Gtk.ScrolledWindow({ hexpand: true, vexpand: true });
+    
     const contentStack = new Gtk.Stack({ transition_type: Gtk.StackTransitionType.SLIDE_UP_DOWN });
     contentStack.margin_top = 20;
     contentStack.margin_start = 20;
     contentStack.margin_end = 20;
     contentStack.margin_bottom = 20;
-    contentStack.hexpand = true;
-    bodyBox.append(contentStack);
+    
+    contentScroll.set_child(contentStack);
+    bodyBox.append(contentScroll);
     
     contentStack.add_named(buildIntroPage(), 'intro');
     contentStack.add_named(buildLayoutPage(), 'layout');
