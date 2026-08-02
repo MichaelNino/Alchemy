@@ -16,6 +16,6 @@ export class QCard extends BaseComponent {
     
     append(childComponent) {
         this.children.push(childComponent);
-        this.box.append(childComponent.widget);
+        this.box.append(childComponent.widget || childComponent);
     }
 }

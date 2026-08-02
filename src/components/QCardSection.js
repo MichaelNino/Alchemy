@@ -13,6 +13,6 @@ export class QCardSection extends BaseComponent {
     
     append(childComponent) {
         this.children.push(childComponent);
-        this.widget.append(childComponent.widget);
+        this.widget.append(childComponent.widget || childComponent);
     }
 }
