@@ -15,6 +15,18 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+/**
+ * QVideoPlayer Component
+ * 
+ * A versatile, dual-engine video player component for Alchemy.
+ * 
+ * @param {Object} props
+ * @param {string|Ref} props.src - The URI or path to the video file. Can be reactive.
+ * @param {string} [props.engine='native'] - 'native' (GTK/GStreamer) or 'web' (WebKit HTML5).
+ * @param {boolean} [props.controls=true] - Whether to display playback controls.
+ * @param {boolean} [props.autoplay=false] - Whether to start playback automatically.
+ * @param {boolean} [props.loop=false] - Whether to loop the video upon reaching the end.
+ */
 export class QVideoPlayer extends BaseComponent {
     constructor(props = {}) {
         const engine = props.engine || 'native';
