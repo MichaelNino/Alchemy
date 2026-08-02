@@ -36,3 +36,4 @@ export { QFile } from './components/QFile.js';
 export { QVideoPlayer } from './components/QVideoPlayer.js';
 export { QKanban } from './components/QKanban.js';
 export { QKanbanCard } from './components/QKanbanCard.js';
+export { QFormRules } from './utils/QFormRules.js';

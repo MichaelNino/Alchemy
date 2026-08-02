@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -114,19 +114,72 @@ function buildFormsPage(win) {
         }
     });
     
-    form.append(new QLabel({ label: '<b>Input Validation</b>', useMarkup: true }));
+    // --- 1. Standard Inputs ---
+    form.append(new QLabel({ label: '<b>Standard Inputs</b>', useMarkup: true }));
     
     const username = ref('');
     form.append(new QInput({
-        placeholder: 'Username (min 4 chars)',
+        placeholder: 'Username',
         modelValue: username,
-        rules: [
-            val => (val && val.length > 0) || 'Required',
-            val => val.length >= 4 || 'Min 4 characters'
-        ]
+        rules: [QFormRules.required(), QFormRules.minLength(4)]
+    }));
+
+    const password = ref('');
+    form.append(new QInput({
+        type: 'password',
+        placeholder: 'Password',
+        modelValue: password,
+        rules: [QFormRules.required(), QFormRules.minLength(8)]
+    }));
+    
+    const email = ref('');
+    form.append(new QInput({
+        type: 'email',
+        placeholder: 'Email Address',
+        modelValue: email,
+        rules: [QFormRules.required(), QFormRules.email()]
+    }));
+
+    const phone = ref('');
+    form.append(new QInput({
+        type: 'tel',
+        placeholder: 'Phone Number',
+        modelValue: phone,
+        rules: [QFormRules.phone()]
+    }));
+
+    const website = ref('');
+    form.append(new QInput({
+        type: 'url',
+        placeholder: 'Website URL',
+        modelValue: website,
+        rules: [QFormRules.url()]
     }));
     
     form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+    
+    // --- 2. Date & Time Pickers ---
+    form.append(new QLabel({ label: '<b>Native Pickers</b>', useMarkup: true }));
+    
+    const dateRef = ref('');
+    form.append(new QInput({
+        type: 'date',
+        placeholder: 'Select a Date...',
+        modelValue: dateRef,
+        rules: [QFormRules.required()]
+    }));
+    
+    const timeRef = ref('');
+    form.append(new QInput({
+        type: 'time',
+        placeholder: 'Select a Time...',
+        modelValue: timeRef,
+        rules: [QFormRules.required()]
+    }));
+
+    form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+
+    // --- 3. Selectors ---
     form.append(new QLabel({ label: '<b>Selectors &amp; Toggles</b>', useMarkup: true }));
     
     const fruit = ref('Apple');

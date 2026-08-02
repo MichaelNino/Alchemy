@@ -15,13 +15,17 @@ export class QInput extends BaseComponent {
 
         this.rules = props.rules || [];
         this.hasError = false;
+        this.type = props.type || 'text';
 
         if (props.placeholder) {
             this.entry.placeholder_text = props.placeholder;
         }
 
+        // Configure based on type
+        this._configureType();
+
         if (props.modelValue !== undefined) {
-            this.entry.text = props.modelValue.value;
+            this.entry.text = props.modelValue.value || '';
             
             this.entry.connect('changed', () => {
                 if (props.modelValue.value !== this.entry.text) {
@@ -32,7 +36,7 @@ export class QInput extends BaseComponent {
             
             effect(() => {
                 if (this.entry.text !== props.modelValue.value) {
-                    this.entry.text = props.modelValue.value;
+                    this.entry.text = props.modelValue.value || '';
                 }
             });
         }
@@ -56,5 +60,96 @@ export class QInput extends BaseComponent {
             this.errorLabel.visible = false;
             return true;
         };
+    }
+
+    _configureType() {
+        switch (this.type) {
+            case 'password':
+                this.entry.visibility = false;
+                this.entry.input_purpose = Gtk.InputPurpose.PASSWORD;
+                break;
+            case 'email':
+                this.entry.input_purpose = Gtk.InputPurpose.EMAIL;
+                break;
+            case 'tel':
+                this.entry.input_purpose = Gtk.InputPurpose.PHONE;
+                break;
+            case 'url':
+                this.entry.input_purpose = Gtk.InputPurpose.URL;
+                break;
+            case 'number':
+                this.entry.input_purpose = Gtk.InputPurpose.NUMBER;
+                break;
+            case 'date':
+                this._setupDatePicker();
+                break;
+            case 'time':
+                this._setupTimePicker();
+                break;
+        }
+    }
+
+    _setupDatePicker() {
+        this.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'x-office-calendar-symbolic');
+        this.entry.set_icon_activatable(Gtk.EntryIconPosition.SECONDARY, true);
+
+        const popover = new Gtk.Popover();
+        const calendar = new Gtk.Calendar();
+        
+        calendar.connect('day-selected', () => {
+            const date = calendar.get_date(); // GLib.DateTime
+            if (date) {
+                const yyyy = date.get_year();
+                const mm = String(date.get_month()).padStart(2, '0');
+                const dd = String(date.get_day_of_month()).padStart(2, '0');
+                this.entry.text = `${yyyy}-${mm}-${dd}`;
+            }
+            popover.popdown();
+        });
+
+        popover.set_child(calendar);
+        popover.set_parent(this.entry);
+
+        this.entry.connect('icon-press', (entry, iconPos) => {
+            if (iconPos === Gtk.EntryIconPosition.SECONDARY) {
+                popover.popup();
+            }
+        });
+    }
+
+    _setupTimePicker() {
+        this.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, 'document-open-recent-symbolic');
+        this.entry.set_icon_activatable(Gtk.EntryIconPosition.SECONDARY, true);
+
+        const popover = new Gtk.Popover();
+        const box = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 5, margin_start: 10, margin_end: 10, margin_top: 10, margin_bottom: 10 });
+        
+        const hrSpin = Gtk.SpinButton.new_with_range(0, 23, 1);
+        hrSpin.orientation = Gtk.Orientation.VERTICAL;
+        
+        const minSpin = Gtk.SpinButton.new_with_range(0, 59, 1);
+        minSpin.orientation = Gtk.Orientation.VERTICAL;
+
+        box.append(hrSpin);
+        box.append(new Gtk.Label({ label: ':' }));
+        box.append(minSpin);
+        
+        const updateTime = () => {
+            const hr = String(hrSpin.get_value_as_int()).padStart(2, '0');
+            const mn = String(minSpin.get_value_as_int()).padStart(2, '0');
+            this.entry.text = `${hr}:${mn}`;
+        };
+        
+        hrSpin.connect('value-changed', updateTime);
+        minSpin.connect('value-changed', updateTime);
+
+        popover.set_child(box);
+        popover.set_parent(this.entry);
+
+        this.entry.connect('icon-press', (entry, iconPos) => {
+            if (iconPos === Gtk.EntryIconPosition.SECONDARY) {
+                popover.popup();
+            }
+        });
     }
 }
