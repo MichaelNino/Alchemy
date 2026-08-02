@@ -5,13 +5,17 @@ import { ref } from '../reactivity.js';
 let _gstInitialized = false;
 
 export class AudioEngine {
-    constructor() {
+    constructor(videoSink = null) {
         if (!_gstInitialized) {
             Gst.init(null);
             _gstInitialized = true;
         }
 
-        this.player = Gst.ElementFactory.make("playbin", "audio-player");
+        this.player = Gst.ElementFactory.make("playbin", null);
+        
+        if (videoSink) {
+            this.player.set_property('video-sink', videoSink);
+        }
         
         // Reactive state
         this.src = ref('');
