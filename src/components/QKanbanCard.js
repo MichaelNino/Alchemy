@@ -87,15 +87,27 @@ export class QKanbanCard extends BaseComponent {
         const menuBtn = new QBtn({ icon: 'view-more-symbolic', flat: true });
         menuBtn.widget.valign = Gtk.Align.CENTER;
         
-        const menu = new QMenu({
-            items: [
-                { label: 'Edit', onClick: () => { if (props.onEdit) props.onEdit(task); } },
-                { label: 'Delete', onClick: () => { if (props.onDelete) props.onDelete(task); } }
-            ]
+        const menu = new QMenu();
+        // Create menu items
+        const editItem = new Gtk.Button({ label: 'Edit', has_frame: false });
+        editItem.connect('clicked', () => { 
+            menu.widget.popdown();
+            if (props.onEdit) props.onEdit(task); 
         });
+        menu.box.append(editItem);
+        
+        const deleteItem = new Gtk.Button({ label: 'Delete', has_frame: false });
+        deleteItem.add_css_class('destructive-action');
+        deleteItem.connect('clicked', () => { 
+            menu.widget.popdown();
+            if (props.onDelete) props.onDelete(task); 
+        });
+        menu.box.append(deleteItem);
+        
+        menu.mount(menuBtn.widget);
         
         menuBtn.widget.connect('clicked', () => {
-            menu.popup(menuBtn.widget);
+            menu.widget.popup();
         });
         bottomRow.append(menuBtn.widget);
         
@@ -104,7 +116,7 @@ export class QKanbanCard extends BaseComponent {
         card.box.append(hbox);
         
         // Make draggable
-        new QDragSource({ widget: card.widget, payload: task.id });
+        new QDragSource(card, { payload: JSON.stringify({ id: task.id }) });
         
         super(card.widget);
         this.task = task;

@@ -415,6 +415,12 @@ function buildMediaPage() {
         },
         onTaskEdit: (task) => {
             console.log(`Edit task ${task.id}`);
+            const newTasks = [...tasks.value];
+            const idx = newTasks.findIndex(t => t.id === task.id);
+            if (idx > -1) {
+                newTasks[idx].title = task.title + ' (Edited)';
+                tasks.value = newTasks;
+            }
         },
         onTaskDelete: (task) => {
             console.log(`Delete task ${task.id}`);
