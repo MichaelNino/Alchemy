@@ -771,6 +771,20 @@ function buildChartsPage() {
     radarCard.append(radarSec);
     grid.attach(radarCard.widget, 0, 2, 1, 1);
     
+    // 6. Polar Area Chart
+    const polarCard = new QCard();
+    polarCard.widget.hexpand = true;
+    polarCard.widget.vexpand = true;
+    const polarSec = new QCardSection();
+    polarSec.widget.vexpand = true;
+    polarSec.append(new QLabel({ label: '<b>Polar Area Chart</b>', useMarkup: true }));
+    
+    const polarChart = new QChart({ type: 'polarArea', data: chartData, color: '#ed333b' }); // Red
+    polarChart.widget.height_request = 250;
+    polarSec.append(polarChart);
+    polarCard.append(polarSec);
+    grid.attach(polarCard.widget, 1, 2, 1, 1);
+    
     page.append(grid);
 
     return page;

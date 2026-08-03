@@ -89,6 +89,8 @@ export class QChart extends BaseComponent {
                 this.drawDoughnutChart(cr, width, height, data, r, g, b);
             } else if (this.type === 'radar') {
                 this.drawRadarChart(cr, width, height, data, r, g, b);
+            } else if (this.type === 'polarArea') {
+                this.drawPolarAreaChart(cr, width, height, data, r, g, b);
             }
         });
         
@@ -342,6 +344,61 @@ export class QChart extends BaseComponent {
             
             cr.moveTo(labelX - 10, labelY);
             cr.showText(String(data[i].label));
+        }
+    }
+    
+    drawPolarAreaChart(cr, width, height, data, r, g, b) {
+        const cx = width / 2;
+        const cy = height / 2; // Keep at center if we rely on legend
+        const maxRadius = Math.min(width, height) / 2 * 0.7;
+        
+        const N = data.length;
+        if (N === 0) return;
+        
+        const maxVal = Math.max(...data.map(d => d.value), 1);
+        const angleStep = (2 * Math.PI) / N;
+        let startAngle = -Math.PI / 2;
+        
+        // 1. Draw web (concentric circles)
+        cr.setSourceRGBA(0.5, 0.5, 0.5, 0.3); // Light gray for web
+        cr.setLineWidth(1);
+        
+        const rings = 4;
+        for (let rLevel = 1; rLevel <= rings; rLevel++) {
+            const rStep = (maxRadius / rings) * rLevel;
+            cr.arc(cx, cy, rStep, 0, 2 * Math.PI);
+            cr.stroke();
+        }
+        
+        // 2. Draw spokes
+        for (let i = 0; i < N; i++) {
+            const angle = startAngle + (i * angleStep);
+            const x = cx + Math.cos(angle) * maxRadius;
+            const y = cy + Math.sin(angle) * maxRadius;
+            cr.moveTo(cx, cy);
+            cr.lineTo(x, y);
+        }
+        cr.stroke();
+        
+        // 3. Draw Slices
+        for (let i = 0; i < N; i++) {
+            const angle = angleStep;
+            const valRadius = (data[i].value / maxVal) * maxRadius;
+            
+            const modifier = (i % 5) * 0.15;
+            const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
+            
+            cr.setSourceRGBA(sr, sg, sb, 0.6); // Semi-transparent fill
+            cr.moveTo(cx, cy);
+            cr.arc(cx, cy, valRadius, startAngle, startAngle + angle);
+            cr.closePath();
+            cr.fillPreserve();
+            
+            cr.setSourceRGBA(sr, sg, sb, 1.0); // Solid stroke
+            cr.setLineWidth(2);
+            cr.stroke();
+            
+            startAngle += angle;
         }
     }
 }
