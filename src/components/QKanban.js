@@ -29,7 +29,15 @@ export class QKanban extends BaseComponent {
             homogeneous: true 
         });
         
-        super(board);
+        const scroll = new Gtk.ScrolledWindow({
+            hexpand: true,
+            vexpand: true,
+            vscrollbar_policy: Gtk.PolicyType.NEVER,
+            hscrollbar_policy: Gtk.PolicyType.AUTOMATIC
+        });
+        scroll.set_child(board);
+        
+        super(scroll);
         
         const cols = props.columns.value !== undefined ? props.columns.value : props.columns;
         

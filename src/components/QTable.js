@@ -17,7 +17,14 @@ export class QTable extends BaseComponent {
         this.widget.margin_start = 10;
         
         this.grid = new Gtk.Grid({ column_spacing: 20, row_spacing: 10 });
-        this.widget.append(this.grid);
+        
+        const scroll = new Gtk.ScrolledWindow({
+            hexpand: true,
+            vscrollbar_policy: Gtk.PolicyType.NEVER,
+            hscrollbar_policy: Gtk.PolicyType.AUTOMATIC
+        });
+        scroll.set_child(this.grid);
+        this.widget.append(scroll);
 
         this.paginationBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
         this.paginationBox.set_halign(Gtk.Align.END);
