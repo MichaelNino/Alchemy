@@ -41,6 +41,8 @@ export class QChart extends BaseComponent {
                 this.drawLineChart(cr, width, height, data, r, g, b);
             } else if (this.type === 'pie') {
                 this.drawPieChart(cr, width, height, data, r, g, b);
+            } else if (this.type === 'doughnut') {
+                this.drawDoughnutChart(cr, width, height, data, r, g, b);
             }
         });
         
@@ -170,6 +172,49 @@ export class QChart extends BaseComponent {
             cr.moveTo(cx, cy);
             cr.arc(cx, cy, radius, startAngle, startAngle + angle);
             cr.fill();
+            
+            // Label
+            const midAngle = startAngle + (angle / 2);
+            const labelX = cx + Math.cos(midAngle) * (radius * 1.25);
+            const labelY = cy + Math.sin(midAngle) * (radius * 1.25);
+            
+            cr.setSourceRGBA(0.8, 0.8, 0.8, 1.0);
+            cr.selectFontFace("Sans", 0, 0);
+            cr.setFontSize(11);
+            cr.moveTo(labelX - 10, labelY);
+            cr.showText(`${item.label} (${Math.round(fraction * 100)}%)`);
+            
+            startAngle += angle;
+        });
+    }
+    
+    drawDoughnutChart(cr, width, height, data, r, g, b) {
+        const cx = width / 2;
+        const cy = height / 2;
+        const radius = Math.min(width, height) / 2 * 0.7;
+        const thickness = radius * 0.4;
+        const drawRadius = radius - (thickness / 2);
+        
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        if (total === 0) return;
+        
+        let startAngle = -Math.PI / 2; // Start at 12 o'clock
+        
+        cr.setLineWidth(thickness);
+        
+        data.forEach((item, i) => {
+            const fraction = item.value / total;
+            const angle = fraction * 2 * Math.PI;
+            
+            // Adjust brightness for different slices
+            const modifier = (i % 5) * 0.15;
+            const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
+            
+            cr.setSourceRGBA(sr, sg, sb, 1.0);
+            // newPath() is not needed since stroke() clears the path by default,
+            // but we can just jump straight to drawing the arc.
+            cr.arc(cx, cy, drawRadius, startAngle, startAngle + angle);
+            cr.stroke();
             
             // Label
             const midAngle = startAngle + (angle / 2);

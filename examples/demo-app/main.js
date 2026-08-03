@@ -741,7 +741,21 @@ function buildChartsPage() {
     pieChart.widget.height_request = 250;
     pieSec.append(pieChart);
     pieCard.append(pieSec);
-    grid.attach(pieCard.widget, 0, 1, 2, 1);
+    grid.attach(pieCard.widget, 0, 1, 1, 1);
+    
+    // 4. Doughnut Chart
+    const doughnutCard = new QCard();
+    doughnutCard.widget.hexpand = true;
+    doughnutCard.widget.vexpand = true;
+    const doughnutSec = new QCardSection();
+    doughnutSec.widget.vexpand = true;
+    doughnutSec.append(new QLabel({ label: '<b>Doughnut Chart</b>', useMarkup: true }));
+    
+    const doughnutChart = new QChart({ type: 'doughnut', data: chartData, color: '#9141ac' }); // Purple
+    doughnutChart.widget.height_request = 250;
+    doughnutSec.append(doughnutChart);
+    doughnutCard.append(doughnutSec);
+    grid.attach(doughnutCard.widget, 1, 1, 1, 1);
     
     page.append(grid);
 
