@@ -1209,7 +1209,7 @@ app.connect('activate', () => {
         { id: 'scheduler', label: 'Calendar / Scheduler', icon: 'x-office-calendar-symbolic' },
         { id: 'chat', label: 'Chat Messenger', icon: 'user-info-symbolic' },
         { id: 'richtext', label: 'Rich Text Editor', icon: 'format-text-bold-symbolic' },
-        { id: 'diagram', label: 'Diagrams (BPMN)', icon: 'view-sitemap-symbolic' },
+        { id: 'diagram', label: 'Diagrams', icon: 'view-sitemap-symbolic' },
         { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' },
         { id: 'charts', label: 'Charts & Analytics', icon: 'utilities-system-monitor-symbolic' }
     ];
