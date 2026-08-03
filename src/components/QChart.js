@@ -22,11 +22,55 @@ function adjustBrightness(r, g, b, amount) {
 
 export class QChart extends BaseComponent {
     constructor(props = {}) {
-        const drawingArea = new Gtk.DrawingArea();
-        super(drawingArea);
+        const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10 });
+        const drawingArea = new Gtk.DrawingArea({ hexpand: true, vexpand: true });
+        box.append(drawingArea);
+        super(box);
         
         this.type = props.type || 'bar';
         this.color = props.color || '#3584e4'; // Default Adwaita Blue
+        this.data = props.data;
+        
+        // Build Legend for Pie/Doughnut/PolarArea
+        if (['pie', 'doughnut', 'polarArea'].includes(this.type)) {
+            const legendBox = new Gtk.FlowBox({ 
+                selection_mode: Gtk.SelectionMode.NONE,
+                max_children_per_line: 10,
+                min_children_per_line: 1,
+                row_spacing: 5,
+                column_spacing: 15,
+                halign: Gtk.Align.CENTER
+            });
+            box.append(legendBox);
+            
+            const rawData = this.data && this.data.value !== undefined ? this.data.value : (this.data || []);
+            const total = rawData.reduce((sum, item) => sum + item.value, 0);
+            const [r, g, b] = hexToRGB(this.color);
+            
+            rawData.forEach((item, i) => {
+                const fraction = total === 0 ? 0 : item.value / total;
+                const modifier = (i % 5) * 0.15;
+                const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
+                
+                // Color swatch
+                const swatch = new Gtk.DrawingArea({ width_request: 12, height_request: 12 });
+                swatch.set_draw_func((area, cr) => {
+                    cr.setSourceRGBA(sr, sg, sb, 1.0);
+                    cr.rectangle(0, 0, 12, 12);
+                    cr.fill();
+                });
+                
+                // Label
+                const labelStr = `${item.label} (${Math.round(fraction * 100)}%)`;
+                const label = new Gtk.Label({ label: labelStr, css_classes: ['dim-label'] });
+                
+                const itemBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 });
+                itemBox.append(swatch);
+                itemBox.append(label);
+                
+                legendBox.append(itemBox);
+            });
+        }
         
         // Setup drawing function
         drawingArea.set_draw_func((area, cr, width, height) => {
@@ -162,11 +206,11 @@ export class QChart extends BaseComponent {
         
         let startAngle = -Math.PI / 2; // Start at 12 o'clock
         
+        // Draw slices
         data.forEach((item, i) => {
             const fraction = item.value / total;
             const angle = fraction * 2 * Math.PI;
             
-            // Adjust brightness for different slices
             const modifier = (i % 5) * 0.15;
             const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
             
@@ -174,17 +218,6 @@ export class QChart extends BaseComponent {
             cr.moveTo(cx, cy);
             cr.arc(cx, cy, radius, startAngle, startAngle + angle);
             cr.fill();
-            
-            // Label
-            const midAngle = startAngle + (angle / 2);
-            const labelX = cx + Math.cos(midAngle) * (radius * 1.25);
-            const labelY = cy + Math.sin(midAngle) * (radius * 1.25);
-            
-            cr.setSourceRGBA(0.8, 0.8, 0.8, 1.0);
-            cr.selectFontFace("Sans", 0, 0);
-            cr.setFontSize(11);
-            cr.moveTo(labelX - 10, labelY);
-            cr.showText(`${item.label} (${Math.round(fraction * 100)}%)`);
             
             startAngle += angle;
         });
@@ -194,55 +227,34 @@ export class QChart extends BaseComponent {
         const cx = width / 2;
         const cy = height / 2;
         const radius = Math.min(width, height) / 2 * 0.7;
-        const thickness = radius * 0.4;
-        const drawRadius = radius - (thickness / 2);
+        const thickness = radius * 0.5;
+        const innerRadius = radius - thickness;
         
         const total = data.reduce((sum, item) => sum + item.value, 0);
         if (total === 0) return;
         
-        let startAngle = -Math.PI / 2; // Start at 12 o'clock
+        let startAngle = -Math.PI / 2;
         
-        cr.setLineWidth(thickness);
-        
-        // First loop: draw the doughnut slices
+        // Draw slices
         data.forEach((item, i) => {
             const fraction = item.value / total;
             const angle = fraction * 2 * Math.PI;
             
-            // Adjust brightness for different slices
             const modifier = (i % 5) * 0.15;
             const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
             
             cr.setSourceRGBA(sr, sg, sb, 1.0);
-            // Move to the start of the arc to prevent connecting lines from previous operations
-            const startX = cx + Math.cos(startAngle) * drawRadius;
-            const startY = cy + Math.sin(startAngle) * drawRadius;
-            cr.moveTo(startX, startY);
-            cr.arc(cx, cy, drawRadius, startAngle, startAngle + angle);
-            cr.stroke();
-            
-            startAngle += angle;
-        });
-        
-        // Second loop: draw the labels
-        startAngle = -Math.PI / 2;
-        data.forEach((item, i) => {
-            const fraction = item.value / total;
-            const angle = fraction * 2 * Math.PI;
-            
-            const midAngle = startAngle + (angle / 2);
-            const labelX = cx + Math.cos(midAngle) * (radius * 1.25);
-            const labelY = cy + Math.sin(midAngle) * (radius * 1.25);
-            
-            cr.setSourceRGBA(0.8, 0.8, 0.8, 1.0);
-            cr.selectFontFace("Sans", 0, 0);
-            cr.setFontSize(11);
-            cr.moveTo(labelX - 10, labelY);
-            cr.showText(`${item.label} (${Math.round(fraction * 100)}%)`);
+            // Draw outer arc
+            cr.arc(cx, cy, radius, startAngle, startAngle + angle);
+            // Draw inner arc in reverse (arcNegative)
+            cr.arcNegative(cx, cy, innerRadius, startAngle + angle, startAngle);
+            cr.closePath();
+            cr.fill();
             
             startAngle += angle;
         });
     }
+
     
     drawRadarChart(cr, width, height, data, r, g, b) {
         const cx = width / 2;
