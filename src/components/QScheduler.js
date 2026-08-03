@@ -221,25 +221,27 @@ export class QScheduler extends BaseComponent {
             
             // Find events for this day
             const dayEvents = this.events.value.filter(e => this.isSameDay(new Date(e.start), cursorDate));
-            const eventsBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 2 });
+            const eventsBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 4 });
+            eventsBox.halign = Gtk.Align.CENTER;
             eventsBox.margin_top = 5;
             eventsBox.margin_start = 5;
             eventsBox.margin_end = 5;
             eventsBox.vexpand = true;
             
             dayEvents.forEach(evt => {
-                const evtBtn = new Gtk.Button({ label: evt.title });
-                evtBtn.add_css_class('flat');
-                // Basic color styling
-                if (evt.color) {
-                    const rgba = new Gdk.RGBA();
-                    if (rgba.parse(evt.color)) {
-                        // Very basic way to set color on button in GTK4 without CSS provider
-                        // Actually better to use CSS. For now, flat button styling is okay.
-                    }
-                }
-                evtBtn.connect('clicked', () => this.openEventDialog(evt));
-                eventsBox.append(evtBtn);
+                const dot = new Gtk.Box();
+                
+                const css = `* { min-width: 8px; min-height: 8px; border-radius: 50%; background-color: ${evt.color || '#3584e4'}; }`;
+                const provider = new Gtk.CssProvider();
+                provider.load_from_string(css);
+                dot.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+                
+                // Keep the dot clickable to edit the event
+                const dotClick = new Gtk.GestureClick();
+                dotClick.connect('pressed', () => this.openEventDialog(evt));
+                dot.add_controller(dotClick);
+                
+                eventsBox.append(dot);
             });
             
             cell.append(eventsBox);
