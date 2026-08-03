@@ -10,7 +10,8 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
+    QTag, QTagInput
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -563,66 +564,129 @@ function buildKanbanPage() {
             console.log(`Task ${task.id} moved to ${newStatus}`);
         },
         onTaskAdd: (colId) => {
-            console.log(`Add task in column ${colId}`);
-            // Mock addition
-            const newTasks = [...tasks.value];
-            newTasks.push({
-                id: Date.now(),
-                title: 'New Task',
-                status: colId,
-                color: '#986a44'
-            });
-            tasks.value = newTasks;
+            showTaskDialog(null, colId);
         },
         onTaskEdit: (task) => {
-            const isDialogOpen = ref(true);
-            const titleRef = ref(task.title);
-            const descRef = ref(task.description || '');
-            const assigneeRef = ref(task.assignee || '');
-            
-            const dialog = new QDialog({ modelValue: isDialogOpen });
-            dialog.widget.set_title('Edit Task');
-            
-            const form = new QForm();
-            form.widget.margin_top = 20;
-            form.widget.margin_bottom = 20;
-            form.widget.margin_start = 20;
-            form.widget.margin_end = 20;
-            
-            form.append(new QInput({ label: 'Title', modelValue: titleRef }));
-            form.append(new QInput({ label: 'Description', modelValue: descRef }));
-            form.append(new QInput({ label: 'Assignee', modelValue: assigneeRef }));
-            
-            const saveBtn = new QBtn({ label: 'Save', onClick: () => {
-                const newTasks = [...tasks.value];
-                const idx = newTasks.findIndex(t => t.id === task.id);
-                if (idx > -1) {
-                    newTasks[idx].title = titleRef.value;
-                    newTasks[idx].description = descRef.value;
-                    newTasks[idx].assignee = assigneeRef.value;
-                    tasks.value = newTasks;
-                }
-                isDialogOpen.value = false;
-            }});
-            saveBtn.widget.add_css_class('suggested-action');
-            
-            const cancelBtn = new QBtn({ label: 'Cancel', onClick: () => isDialogOpen.value = false });
-            
-            const btnBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
-            btnBox.margin_top = 20;
-            btnBox.append(cancelBtn.widget);
-            btnBox.append(saveBtn.widget);
-            
-            form.append({ widget: btnBox });
-            dialog.append(form);
-            
-            dialog.mount(page); // Mounts to the root window
+            showTaskDialog(task, null);
         },
         onTaskDelete: (task) => {
             console.log(`Delete task ${task.id}`);
             tasks.value = tasks.value.filter(t => t.id !== task.id);
         }
     });
+
+    function showTaskDialog(existingTask, colId) {
+        const isEdit = !!existingTask;
+        const task = existingTask || {
+            title: '',
+            description: '',
+            assignee: '',
+            color: '#3584e4',
+            status: colId,
+            tags: [],
+            attachments: []
+        };
+        
+        const isDialogOpen = ref(true);
+        const titleRef = ref(task.title);
+        const descRef = ref(task.description || '');
+        const assigneeRef = ref(task.assignee || '');
+        const colorRef = ref(task.color || '#3584e4');
+        const statusRef = ref(task.status || 'todo');
+        const tagsRef = ref([...(task.tags || [])]);
+        const attachmentsRef = ref([...(task.attachments || [])]);
+        
+        const dialog = new QDialog({ modelValue: isDialogOpen });
+        dialog.widget.set_title(isEdit ? 'Edit Task' : 'Add Task');
+        
+        const form = new QForm();
+        form.widget.margin_top = 20;
+        form.widget.margin_bottom = 20;
+        form.widget.margin_start = 20;
+        form.widget.margin_end = 20;
+        form.widget.spacing = 10;
+        
+        form.append(new QInput({ label: 'Title', modelValue: titleRef }));
+        form.append(new QInput({ label: 'Description', modelValue: descRef }));
+        
+        form.append(new QSelect({ 
+            label: 'Assignee',
+            options: [{label: 'Unassigned', value: ''}, {label: 'Alice', value: 'Alice'}, {label: 'Bob', value: 'Bob'}, {label: 'Charlie', value: 'Charlie'}, {label: 'Dave', value: 'Dave'}, {label: 'Eve', value: 'Eve'}],
+            modelValue: assigneeRef
+        }));
+        
+        form.append(new QSelect({
+            label: 'Color',
+            options: [
+                {label: 'Blue', value: '#3584e4'},
+                {label: 'Red', value: '#e01b24'},
+                {label: 'Yellow', value: '#f6d32d'},
+                {label: 'Green', value: '#2ec27e'},
+                {label: 'Brown', value: '#986a44'}
+            ],
+            modelValue: colorRef
+        }));
+        
+        form.append(new QSelect({
+            label: 'Status',
+            options: [
+                {label: 'To Do', value: 'todo'},
+                {label: 'In Progress', value: 'in-progress'},
+                {label: 'Done', value: 'done'}
+            ],
+            modelValue: statusRef
+        }));
+        
+        form.append(new QLabel({ label: '<b>Tags</b>', useMarkup: true }));
+        form.append(new QTagInput({ modelValue: tagsRef, placeholder: 'Type tag and press Enter' }));
+        
+        form.append(new QLabel({ label: '<b>Attachments</b>', useMarkup: true, margin_top: 10 }));
+        form.append(new QFile({ multiple: true, modelValue: attachmentsRef, label: 'Select files...' }));
+        
+        const saveBtn = new QBtn({ label: 'Save', onClick: () => {
+            const newTasks = [...tasks.value];
+            
+            if (isEdit) {
+                const idx = newTasks.findIndex(t => t.id === task.id);
+                if (idx > -1) {
+                    newTasks[idx].title = titleRef.value;
+                    newTasks[idx].description = descRef.value;
+                    newTasks[idx].assignee = assigneeRef.value;
+                    newTasks[idx].color = colorRef.value;
+                    newTasks[idx].status = statusRef.value;
+                    newTasks[idx].tags = tagsRef.value;
+                    newTasks[idx].attachments = attachmentsRef.value;
+                }
+            } else {
+                newTasks.push({
+                    id: Date.now(),
+                    title: titleRef.value || 'New Task',
+                    description: descRef.value,
+                    assignee: assigneeRef.value,
+                    color: colorRef.value,
+                    status: statusRef.value,
+                    tags: tagsRef.value,
+                    attachments: attachmentsRef.value
+                });
+            }
+            
+            tasks.value = newTasks;
+            isDialogOpen.value = false;
+        }});
+        saveBtn.widget.add_css_class('suggested-action');
+        
+        const cancelBtn = new QBtn({ label: 'Cancel', onClick: () => isDialogOpen.value = false });
+        
+        const btnBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+        btnBox.margin_top = 20;
+        btnBox.append(cancelBtn.widget);
+        btnBox.append(saveBtn.widget);
+        
+        form.append({ widget: btnBox });
+        dialog.append(form);
+        
+        dialog.mount(page);
+    }
 
     page.append(kanban.widget);
     return page;

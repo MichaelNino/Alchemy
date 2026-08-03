@@ -6,6 +6,8 @@ import { QLabel } from './QLabel.js';
 import { QAvatar } from './QAvatar.js';
 import { QBtn } from './QBtn.js';
 import { QMenu } from './QMenu.js';
+import { QTag } from './QTag.js';
+import { QIcon } from './QIcon.js';
 import { QDragSource } from '../utils/QDragSource.js';
 
 export class QKanbanCard extends BaseComponent {
@@ -63,11 +65,9 @@ export class QKanbanCard extends BaseComponent {
         // Tags
         if (task.tags && task.tags.length > 0) {
             const tagBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 5 });
-            task.tags.forEach(tag => {
-                const tagLabel = new QLabel({ label: `<small> ${tag} </small>`, useMarkup: true });
-                // Simulate a tag look with an overlay or just dim label
-                tagLabel.widget.add_css_class('accent');
-                tagBox.append(tagLabel.widget);
+            task.tags.forEach(tagText => {
+                const tag = new QTag({ label: tagText, removable: false });
+                tagBox.append(tag.widget);
             });
             bottomRow.append(tagBox);
         }
@@ -75,6 +75,17 @@ export class QKanbanCard extends BaseComponent {
         // Spacer
         const spacer = new Gtk.Box({ hexpand: true });
         bottomRow.append(spacer);
+        
+        // Attachments Indicator
+        if (task.attachments && task.attachments.length > 0) {
+            const attachBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 3 });
+            attachBox.valign = Gtk.Align.CENTER;
+            attachBox.append(new QIcon({ name: 'mail-attachment-symbolic', size: 16 }).widget);
+            const attachLabel = new QLabel({ label: `<small>${task.attachments.length}</small>`, useMarkup: true });
+            attachLabel.widget.add_css_class('dim-label');
+            attachBox.append(attachLabel.widget);
+            bottomRow.append(attachBox);
+        }
         
         // Assignee Avatar
         if (task.assignee) {

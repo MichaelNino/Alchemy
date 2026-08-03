@@ -39,6 +39,8 @@ export { QFile } from './components/QFile.js';
 export { QVideoPlayer } from './components/QVideoPlayer.js';
 export { QKanban } from './components/QKanban.js';
 export { QKanbanCard } from './components/QKanbanCard.js';
+export { QTag } from './components/QTag.js';
+export { QTagInput } from './components/QTagInput.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
 export { QTransfer } from './components/QTransfer.js';
