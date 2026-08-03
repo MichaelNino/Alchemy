@@ -757,6 +757,20 @@ function buildChartsPage() {
     doughnutCard.append(doughnutSec);
     grid.attach(doughnutCard.widget, 1, 1, 1, 1);
     
+    // 5. Radar Chart
+    const radarCard = new QCard();
+    radarCard.widget.hexpand = true;
+    radarCard.widget.vexpand = true;
+    const radarSec = new QCardSection();
+    radarSec.widget.vexpand = true;
+    radarSec.append(new QLabel({ label: '<b>Radar Chart</b>', useMarkup: true }));
+    
+    const radarChart = new QChart({ type: 'radar', data: chartData, color: '#e5a50a' }); // Yellow
+    radarChart.widget.height_request = 250;
+    radarSec.append(radarChart);
+    radarCard.append(radarSec);
+    grid.attach(radarCard.widget, 0, 2, 1, 1);
+    
     page.append(grid);
 
     return page;

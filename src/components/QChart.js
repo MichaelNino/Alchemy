@@ -43,6 +43,8 @@ export class QChart extends BaseComponent {
                 this.drawPieChart(cr, width, height, data, r, g, b);
             } else if (this.type === 'doughnut') {
                 this.drawDoughnutChart(cr, width, height, data, r, g, b);
+            } else if (this.type === 'radar') {
+                this.drawRadarChart(cr, width, height, data, r, g, b);
             }
         });
         
@@ -229,5 +231,94 @@ export class QChart extends BaseComponent {
             
             startAngle += angle;
         });
+    }
+    
+    drawRadarChart(cr, width, height, data, r, g, b) {
+        const cx = width / 2;
+        const cy = height / 2;
+        const radius = Math.min(width, height) / 2 * 0.7;
+        
+        const N = data.length;
+        if (N === 0) return;
+        
+        const maxVal = Math.max(...data.map(d => d.value), 1);
+        const angleStep = (2 * Math.PI) / N;
+        const startAngle = -Math.PI / 2;
+        
+        // 1. Draw web (concentric polygons)
+        cr.setSourceRGBA(0.5, 0.5, 0.5, 0.3); // Light gray for web
+        cr.setLineWidth(1);
+        
+        const rings = 4;
+        for (let rLevel = 1; rLevel <= rings; rLevel++) {
+            const rStep = (radius / rings) * rLevel;
+            for (let i = 0; i < N; i++) {
+                const angle = startAngle + (i * angleStep);
+                const x = cx + Math.cos(angle) * rStep;
+                const y = cy + Math.sin(angle) * rStep;
+                
+                if (i === 0) cr.moveTo(x, y);
+                else cr.lineTo(x, y);
+            }
+            cr.closePath();
+            cr.stroke();
+        }
+        
+        // 2. Draw axes (spokes)
+        for (let i = 0; i < N; i++) {
+            const angle = startAngle + (i * angleStep);
+            const x = cx + Math.cos(angle) * radius;
+            const y = cy + Math.sin(angle) * radius;
+            cr.moveTo(cx, cy);
+            cr.lineTo(x, y);
+        }
+        cr.stroke();
+        
+        // 3. Draw data polygon
+        for (let i = 0; i < N; i++) {
+            const angle = startAngle + (i * angleStep);
+            const valRadius = (data[i].value / maxVal) * radius;
+            const x = cx + Math.cos(angle) * valRadius;
+            const y = cy + Math.sin(angle) * valRadius;
+            
+            if (i === 0) cr.moveTo(x, y);
+            else cr.lineTo(x, y);
+        }
+        cr.closePath();
+        
+        // Fill data with transparency
+        cr.setSourceRGBA(r, g, b, 0.4);
+        cr.fillPreserve();
+        
+        // Stroke data outline
+        cr.setSourceRGBA(r, g, b, 1.0);
+        cr.setLineWidth(2);
+        cr.stroke();
+        
+        // 4. Draw data points
+        for (let i = 0; i < N; i++) {
+            const angle = startAngle + (i * angleStep);
+            const valRadius = (data[i].value / maxVal) * radius;
+            const x = cx + Math.cos(angle) * valRadius;
+            const y = cy + Math.sin(angle) * valRadius;
+            
+            cr.setSourceRGBA(r, g, b, 1.0);
+            cr.arc(x, y, 4, 0, 2 * Math.PI);
+            cr.fill();
+        }
+        
+        // 5. Draw Labels
+        cr.setSourceRGBA(0.8, 0.8, 0.8, 1.0);
+        cr.selectFontFace("Sans", 0, 0);
+        cr.setFontSize(11);
+        
+        for (let i = 0; i < N; i++) {
+            const angle = startAngle + (i * angleStep);
+            const labelX = cx + Math.cos(angle) * (radius * 1.25);
+            const labelY = cy + Math.sin(angle) * (radius * 1.25);
+            
+            cr.moveTo(labelX - 10, labelY);
+            cr.showText(String(data[i].label));
+        }
     }
 }
