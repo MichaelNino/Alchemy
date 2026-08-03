@@ -45,7 +45,14 @@ export class QImage extends BaseComponent {
             radius = '8px';
         }
         
-        css = `.q-image { border-radius: ${radius}; }`;
+        css = `
+            .q-image { 
+                border-radius: ${radius}; 
+                min-width: ${this.width}px;
+                min-height: ${this.height}px;
+                background-color: transparent;
+            }
+        `;
         
         if (path) {
             const GLib = imports.gi.GLib;
@@ -55,11 +62,12 @@ export class QImage extends BaseComponent {
                     background-image: url('${uri}');
                     background-size: cover;
                     background-position: center;
+                    background-repeat: no-repeat;
                 }
             `;
         }
         
-        provider.load_from_data(css, css.length);
+        provider.load_from_data(css, -1);
         
         // Remove old provider if it exists
         if (this._cssProvider) {
