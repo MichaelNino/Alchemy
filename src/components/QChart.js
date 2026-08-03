@@ -204,6 +204,7 @@ export class QChart extends BaseComponent {
         
         cr.setLineWidth(thickness);
         
+        // First loop: draw the doughnut slices
         data.forEach((item, i) => {
             const fraction = item.value / total;
             const angle = fraction * 2 * Math.PI;
@@ -213,12 +214,22 @@ export class QChart extends BaseComponent {
             const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
             
             cr.setSourceRGBA(sr, sg, sb, 1.0);
-            // newPath() is not needed since stroke() clears the path by default,
-            // but we can just jump straight to drawing the arc.
+            // Move to the start of the arc to prevent connecting lines from previous operations
+            const startX = cx + Math.cos(startAngle) * drawRadius;
+            const startY = cy + Math.sin(startAngle) * drawRadius;
+            cr.moveTo(startX, startY);
             cr.arc(cx, cy, drawRadius, startAngle, startAngle + angle);
             cr.stroke();
             
-            // Label
+            startAngle += angle;
+        });
+        
+        // Second loop: draw the labels
+        startAngle = -Math.PI / 2;
+        data.forEach((item, i) => {
+            const fraction = item.value / total;
+            const angle = fraction * 2 * Math.PI;
+            
             const midAngle = startAngle + (angle / 2);
             const labelX = cx + Math.cos(midAngle) * (radius * 1.25);
             const labelY = cy + Math.sin(midAngle) * (radius * 1.25);
