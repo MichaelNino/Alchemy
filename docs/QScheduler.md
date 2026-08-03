@@ -40,6 +40,7 @@ const scheduler = new QScheduler({
 | `currentDate` | Ref (Date) | The currently focused date on the calendar. |
 | `currentView` | Ref (String)| The active layout: `'month'`, `'week'`, or `'day'`. |
 | `backgroundColor`| String | (Optional) The background color of the calendar view area (defaults to `#ffffff`). |
+| `fontColor` | String | (Optional) The font color for text inside the calendar view area (defaults to `#000000`). |
 
 ## Event Object Structure
 | Field | Type | Description |
