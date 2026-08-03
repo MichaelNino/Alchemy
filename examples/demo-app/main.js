@@ -682,17 +682,17 @@ function buildChartsPage() {
     
     // Dataset for 2D charts (Scatter and Bubble)
     const scatterData = ref([
-        { x: -10, y: 0 },
-        { x: 0, y: 10 },
-        { x: 10, y: 5 },
-        { x: 0.5, y: 5.5 }
+        { label: 'A', x: -10, y: 0 },
+        { label: 'B', x: 0, y: 10 },
+        { label: 'C', x: 10, y: 5 },
+        { label: 'D', x: 0.5, y: 5.5 }
     ]);
     
     const bubbleData = ref([
-        { x: 20, y: 30, r: 15 },
-        { x: 40, y: 10, r: 10 },
-        { x: 15, y: 37, r: 25 },
-        { x: 32, y: 22, r: 5 }
+        { label: 'Product A', x: 20, y: 30, r: 15 },
+        { label: 'Product B', x: 40, y: 10, r: 10 },
+        { label: 'Product C', x: 15, y: 37, r: 25 },
+        { label: 'Product D', x: 32, y: 22, r: 5 }
     ]);
     
     const randBtn = new QBtn({
@@ -704,11 +704,13 @@ function buildChartsPage() {
             }));
             
             scatterData.value = scatterData.value.map(d => ({
+                label: d.label,
                 x: (Math.random() * 40) - 20, // -20 to 20
                 y: Math.random() * 20
             }));
             
             bubbleData.value = bubbleData.value.map(d => ({
+                label: d.label,
                 x: Math.random() * 50,
                 y: Math.random() * 50,
                 r: Math.floor(Math.random() * 30) + 5

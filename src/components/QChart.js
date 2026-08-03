@@ -31,8 +31,8 @@ export class QChart extends BaseComponent {
         this.color = props.color || '#3584e4'; // Default Adwaita Blue
         this.data = props.data;
         
-        // Build Legend for Pie/Doughnut/PolarArea
-        if (['pie', 'doughnut', 'polarArea'].includes(this.type)) {
+        // Build Legend for Pie/Doughnut/PolarArea/Scatter/Bubble
+        if (['pie', 'doughnut', 'polarArea', 'scatter', 'bubble'].includes(this.type)) {
             const legendBox = new Gtk.FlowBox({ 
                 selection_mode: Gtk.SelectionMode.NONE,
                 max_children_per_line: 10,
@@ -435,7 +435,7 @@ export class QChart extends BaseComponent {
         cr.stroke();
         
         // Draw Points
-        data.forEach(item => {
+        data.forEach((item, i) => {
             const mappedX = padding + (item.x / maxX) * availWidth;
             const mappedY = height - padding - ((item.y / maxY) * availHeight);
             
@@ -445,11 +445,14 @@ export class QChart extends BaseComponent {
                 bubbleRadius = Math.max(3, ((item.r || 1) / maxR) * 30);
             }
             
-            cr.setSourceRGBA(r, g, b, 0.6); // Semi-transparent
+            const modifier = (i % 5) * 0.15;
+            const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
+            
+            cr.setSourceRGBA(sr, sg, sb, 0.6); // Semi-transparent
             cr.arc(mappedX, mappedY, bubbleRadius, 0, 2 * Math.PI);
             cr.fillPreserve();
             
-            cr.setSourceRGBA(r, g, b, 1.0); // Solid outline
+            cr.setSourceRGBA(sr, sg, sb, 1.0); // Solid outline
             cr.setLineWidth(1);
             cr.stroke();
         });

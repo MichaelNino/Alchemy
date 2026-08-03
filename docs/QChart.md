@@ -54,19 +54,19 @@ const standardData = ref([
 ### Cartesian 2D Format
 
 Used by **Scatter** and **Bubble** charts.
-The data array should consist of objects containing `x` (Number) and `y` (Number) coordinates. For the Bubble chart, an optional `r` (Number) determines the radius of the bubble.
+The data array should consist of objects containing `x` (Number) and `y` (Number) coordinates. For the Bubble chart, an optional `r` (Number) determines the radius of the bubble. You can also provide an optional `label` (String) to generate a legend for the data points.
 
 ```javascript
 // For Scatter Chart
 const scatterData = ref([
-    { x: -10, y: 0 },
-    { x: 5, y: 15 }
+    { label: 'Point A', x: -10, y: 0 },
+    { label: 'Point B', x: 5, y: 15 }
 ]);
 
 // For Bubble Chart
 const bubbleData = ref([
-    { x: 10, y: 20, r: 5 },
-    { x: 30, y: 40, r: 15 } // 'r' determines the size of the bubble
+    { label: 'Product 1', x: 10, y: 20, r: 5 },
+    { label: 'Product 2', x: 30, y: 40, r: 15 } // 'r' determines the size of the bubble
 ]);
 ```
 
