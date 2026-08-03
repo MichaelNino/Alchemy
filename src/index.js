@@ -20,6 +20,7 @@ export { QFileDialog } from "./components/QFileDialog.js";
 export { QNotify } from './components/QNotify.js';
 export { QTable } from './components/QTable.js';
 export { QIcon } from './components/QIcon.js';
+export { QImage } from './components/QImage.js';
 export { QAvatar } from './components/QAvatar.js';
 export { QSelect } from './components/QSelect.js';
 export { QSlider } from './components/QSlider.js';
