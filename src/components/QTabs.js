@@ -4,18 +4,17 @@ import { effect } from '../reactivity.js';
 
 export class QTabs extends BaseComponent {
     constructor(props = {}) {
-        const box = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 0 });
-        box.add_css_class('linked');
-        
-        const scroll = new Gtk.ScrolledWindow({
-            hexpand: true,
-            vscrollbar_policy: Gtk.PolicyType.NEVER,
-            hscrollbar_policy: Gtk.PolicyType.AUTOMATIC
+        const flowBox = new Gtk.FlowBox({
+            selection_mode: Gtk.SelectionMode.NONE,
+            max_children_per_line: 20,
+            min_children_per_line: 1,
+            row_spacing: 5,
+            column_spacing: 5,
+            homogeneous: false
         });
-        scroll.set_child(box);
         
-        super(scroll);
-        this.box = box;
+        super(flowBox);
+        this.flowBox = flowBox;
         
         this.modelValue = props.modelValue;
         this.groupWidget = null;
@@ -47,7 +46,7 @@ export class QTabs extends BaseComponent {
             });
         }
         
-        this.box.append(childComponent.widget);
+        this.flowBox.append(childComponent.widget);
     }
 }
 
