@@ -148,33 +148,28 @@ function buildFormsPage(win) {
         }
     });
     
-    // --- 1. File Dialog ---
-    form.append(new QLabel({ label: '<b>Custom File Dialog</b>', useMarkup: true }));
-    form.append(new QLabel({ label: 'Opens a strictly jailed file dialog.' }));
+    // --- 1. File Dialog & Avatar ---
+    form.append(new QLabel({ label: '<b>Custom File Dialog & Avatar</b>', useMarkup: true }));
+    form.append(new QLabel({ label: 'Click the avatar below to open the custom file dialog and update its image.' }));
     
-    const fileLabel = new QLabel({ label: 'No file chosen' });
-    const fileBtn = new QBtn({
-        label: 'Select Asset...',
-        onClick: () => {
-            const dialog = new QFileDialog({
-                title: 'Select Asset',
-                allowedLocations: [
-                    { name: 'Home', path: GLib.get_home_dir() },
-                    { name: 'Projects', path: GLib.get_home_dir() + '/Projects' }
-                ],
-                filters: ['*.js', '*.md', '*.png'],
-                onAccept: (path) => {
-                    fileLabel.widget.set_label(`Selected: ${path}`);
-                }
-            });
-            dialog.show();
+    const fileLabel = new QLabel({ label: 'No image selected' });
+    
+    const avatarBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 15 });
+    
+    const interactiveAvatar = new QAvatar({ 
+        size: 100, 
+        shape: 'circle', 
+        readonly: false,
+        onImageSelect: (path) => {
+            fileLabel.widget.set_label(`Selected: ${path}`);
         }
     });
+    interactiveAvatar.append(new QIcon({ name: 'camera-photo-symbolic', size: 48 }));
     
-    const fileBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
-    fileBox.append(fileBtn.widget);
-    fileBox.append(fileLabel.widget);
-    form.append({ widget: fileBox });
+    avatarBox.append(interactiveAvatar.widget);
+    avatarBox.append(fileLabel.widget);
+    
+    form.append(avatarBox);
     
     form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
 
