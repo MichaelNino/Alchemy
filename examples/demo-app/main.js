@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -148,7 +148,37 @@ function buildFormsPage(win) {
         }
     });
     
-    // --- 1. Standard Inputs ---
+    // --- 1. File Dialog ---
+    form.append(new QLabel({ label: '<b>Custom File Dialog</b>', useMarkup: true }));
+    form.append(new QLabel({ label: 'Opens a strictly jailed file dialog.' }));
+    
+    const fileLabel = new QLabel({ label: 'No file chosen' });
+    const fileBtn = new QBtn({
+        label: 'Select Asset...',
+        onClick: () => {
+            const dialog = new QFileDialog({
+                title: 'Select Asset',
+                allowedLocations: [
+                    { name: 'Home', path: GLib.get_home_dir() },
+                    { name: 'Projects', path: GLib.get_home_dir() + '/Projects' }
+                ],
+                filters: ['*.js', '*.md', '*.png'],
+                onAccept: (path) => {
+                    fileLabel.widget.set_label(`Selected: ${path}`);
+                }
+            });
+            dialog.show();
+        }
+    });
+    
+    const fileBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+    fileBox.append(fileBtn.widget);
+    fileBox.append(fileLabel.widget);
+    form.append({ widget: fileBox });
+    
+    form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
+
+    // --- 2. Standard Inputs ---
     form.append(new QLabel({ label: '<b>Standard Inputs</b>', useMarkup: true }));
     
     const username = ref('');

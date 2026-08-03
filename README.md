@@ -139,6 +139,7 @@ MIT License
 - [QDialog](docs/QDialog.md)
 - [QDrawer](docs/QDrawer.md)
 - [QFile](docs/QFile.md)
+- [QFileDialog](docs/QFileDialog.md)
 - [QForm](docs/QForm.md)
 - [QGrid](docs/QGrid.md)
 - [QIcon](docs/QIcon.md)

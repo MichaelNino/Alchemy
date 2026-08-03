@@ -15,6 +15,7 @@ export { QSpinner } from './components/QSpinner.js';
 export { QProgressBar } from './components/QProgressBar.js';
 export { QToolbar } from './components/QToolbar.js';
 export { QTabs, QTab } from './components/QTabs.js';
+export { QFileDialog } from "./components/QFileDialog.js";
 
 export { QNotify } from './components/QNotify.js';
 export { QTable } from './components/QTable.js';
