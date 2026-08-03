@@ -63,7 +63,7 @@ export class QAvatar extends BaseComponent {
         } else {
             css = `.avatar { border-radius: 8px; overflow: hidden; }`;
         }
-        provider.load_from_data(css);
+        provider.load_from_data(css, css.length);
         this.widget.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
