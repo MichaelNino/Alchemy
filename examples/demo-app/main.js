@@ -575,13 +575,48 @@ function buildKanbanPage() {
             tasks.value = newTasks;
         },
         onTaskEdit: (task) => {
-            console.log(`Edit task ${task.id}`);
-            const newTasks = [...tasks.value];
-            const idx = newTasks.findIndex(t => t.id === task.id);
-            if (idx > -1) {
-                newTasks[idx].title = task.title + ' (Edited)';
-                tasks.value = newTasks;
-            }
+            const isDialogOpen = ref(true);
+            const titleRef = ref(task.title);
+            const descRef = ref(task.description || '');
+            const assigneeRef = ref(task.assignee || '');
+            
+            const dialog = new QDialog({ modelValue: isDialogOpen });
+            dialog.widget.set_title('Edit Task');
+            
+            const form = new QForm();
+            form.widget.margin_top = 20;
+            form.widget.margin_bottom = 20;
+            form.widget.margin_start = 20;
+            form.widget.margin_end = 20;
+            
+            form.append(new QInput({ label: 'Title', modelValue: titleRef }));
+            form.append(new QInput({ label: 'Description', modelValue: descRef }));
+            form.append(new QInput({ label: 'Assignee', modelValue: assigneeRef }));
+            
+            const saveBtn = new QBtn({ label: 'Save', onClick: () => {
+                const newTasks = [...tasks.value];
+                const idx = newTasks.findIndex(t => t.id === task.id);
+                if (idx > -1) {
+                    newTasks[idx].title = titleRef.value;
+                    newTasks[idx].description = descRef.value;
+                    newTasks[idx].assignee = assigneeRef.value;
+                    tasks.value = newTasks;
+                }
+                isDialogOpen.value = false;
+            }});
+            saveBtn.widget.add_css_class('suggested-action');
+            
+            const cancelBtn = new QBtn({ label: 'Cancel', onClick: () => isDialogOpen.value = false });
+            
+            const btnBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+            btnBox.margin_top = 20;
+            btnBox.append(cancelBtn.widget);
+            btnBox.append(saveBtn.widget);
+            
+            form.append({ widget: btnBox });
+            dialog.append(form);
+            
+            dialog.mount(page); // Mounts to the root window
         },
         onTaskDelete: (task) => {
             console.log(`Delete task ${task.id}`);
