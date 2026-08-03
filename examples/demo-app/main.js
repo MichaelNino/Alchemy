@@ -10,7 +10,7 @@ import {
     QIcon, QAvatar, QSelect, QSlider, QMenu,
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
-    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog
+    QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -149,7 +149,7 @@ function buildFormsPage(win) {
     });
     
     // --- 1. File Dialog & Avatar ---
-    form.append(new QLabel({ label: '<b>Custom File Dialog & Avatar</b>', useMarkup: true }));
+    form.append(new QLabel({ label: '<b>Custom File Dialog &amp; Avatar</b>', useMarkup: true }));
     form.append(new QLabel({ label: 'Click the avatar below to open the custom file dialog and update its image.' }));
     
     const fileLabel = new QLabel({ label: 'No image selected' });
@@ -169,7 +169,7 @@ function buildFormsPage(win) {
     avatarBox.append(interactiveAvatar.widget);
     avatarBox.append(fileLabel.widget);
     
-    form.append(avatarBox);
+    form.append({ widget: avatarBox });
     
     form.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 10, margin_bottom: 10 }) });
 
@@ -405,6 +405,30 @@ function buildFeedbackPage(win) {
     const spinner = new QSpinner({ spinning: isSpinning, size: 32 });
     spinner.widget.margin_top = 10;
     section.append(spinner);
+    
+    section.append({ widget: new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL, margin_top: 20, margin_bottom: 20 }) });
+    section.append(new QLabel({ label: '<b>Progress Bars</b>', useMarkup: true }));
+    
+    const progBasic = new QProgress({ value: 30, max: 100, showLabel: true });
+    progBasic.widget.margin_bottom = 10;
+    section.append(progBasic);
+    
+    const progColor = new QProgress({ value: 65, max: 100, color: '#32CD32', showLabel: true });
+    progColor.widget.margin_bottom = 10;
+    section.append(progColor);
+    
+    const progRatio = new QProgress({ value: 3, max: 10, color: '#FF8C00', showLabel: true, labelFormat: 'ratio' });
+    progRatio.widget.margin_bottom = 10;
+    section.append(progRatio);
+    
+    // Animate the first progress bar for demonstration
+    let progressVal = 30;
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        progressVal += 5;
+        if (progressVal > 100) progressVal = 0;
+        progBasic.setValue(progressVal);
+        return true;
+    });
     
     card.append(section);
     page.append(card.widget);
