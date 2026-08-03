@@ -11,7 +11,7 @@ import {
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
     QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
-    QTag, QTagInput, QScheduler, QRichTextEditor, QChat, QDiagram, BPMNAdapter
+    QTag, QTagInput, QScheduler, QRichTextEditor, QChat, QDiagram
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -1060,24 +1060,49 @@ function buildDiagramPage() {
     const card = new QCard();
     const section = new QCardSection();
     
-    section.append(new QLabel({ label: '<span size="large" weight="bold">QDiagram (BPMN)</span>', useMarkup: true }).widget);
-    section.append(new QLabel({ label: 'Native GTK4 Drag &amp; Drop node diagramming with Cairo-based edges.' }).widget);
+    section.append(new QLabel({ label: '<span size="large" weight="bold">QDiagram (BPMN 2.0 Specification)</span>', useMarkup: true }).widget);
+    section.append(new QLabel({ label: 'Full BPMN 2.0 compliant viewer powered by embedded WebKit engine.' }).widget);
     
     const sampleBPMN = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
-  <bpmn:process id="Process_1">
-    <bpmn:startEvent id="StartEvent_1" name="Start" />
-    <bpmn:task id="Task_1" name="Approve Request" />
-    <bpmn:exclusiveGateway id="Gateway_1" name="Approved?" />
-    <bpmn:endEvent id="EndEvent_1" name="End" />
-    
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Order Received">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_1" name="Check Inventory">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_1" />
-    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_1" targetRef="Gateway_1" />
-    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_1" targetRef="EndEvent_1" />
+    <bpmn:endEvent id="EndEvent_1" name="Order Fulfilled">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_1" targetRef="EndEvent_1" />
   </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1_di" bpmnElement="Task_1">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="392" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="240" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="120" />
+        <di:waypoint x="392" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </bpmn:definitions>`;
     
-    const diagramData = ref(BPMNAdapter.parse(sampleBPMN));
+    const diagramData = ref(sampleBPMN);
     
     const diagram = new QDiagram({ modelValue: diagramData });
     diagram.widget.set_size_request(-1, 500); // 500px high viewport

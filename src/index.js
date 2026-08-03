@@ -46,7 +46,6 @@ export { QRichTextEditor } from './components/QRichTextEditor.js';
 export { QChat } from './components/QChat.js';
 export { QDiagram } from './components/QDiagram.js';
 export { HTMLAdapter, MarkdownAdapter } from './utils/RichTextAdapters.js';
-export { BPMNAdapter } from './utils/DiagramAdapters.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
 export { QTransfer } from './components/QTransfer.js';
