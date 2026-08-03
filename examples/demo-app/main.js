@@ -672,12 +672,37 @@ function buildChartsPage() {
     titleBox.append(new QLabel({ label: '<b>Native Charts (Cairo)</b>', useMarkup: true }).widget);
     
     const chartData = ref([
-        { label: 'Jan', value: 40 },
-        { label: 'Feb', value: 25 },
-        { label: 'Mar', value: 60 },
-        { label: 'Apr', value: 30 },
-        { label: 'May', value: 80 }
+        { label: 'Jan', value: 12 },
+        { label: 'Feb', value: 19 },
+        { label: 'Mar', value: 3 },
+        { label: 'Apr', value: 5 },
+        { label: 'May', value: 2 },
+        { label: 'Jun', value: 3 }
     ]);
+    
+    // Dataset for 2D charts (Scatter and Bubble)
+    const scatterData = [
+        { x: -10, y: 0 },
+        { x: 0, y: 10 },
+        { x: 10, y: 5 },
+        { x: 0.5, y: 5.5 }
+    ];
+    
+    const bubbleData = [
+        { x: 20, y: 30, r: 15 },
+        { x: 40, y: 10, r: 10 },
+        { x: 15, y: 37, r: 25 },
+        { x: 32, y: 22, r: 5 }
+    ];
+
+    const grid = new Gtk.Grid({
+        column_spacing: 20,
+        row_spacing: 20,
+        margin_top: 10,
+        margin_bottom: 10,
+        margin_start: 10,
+        margin_end: 10
+    });
     
     const randBtn = new QBtn({
         label: 'Randomize Data',
@@ -784,6 +809,34 @@ function buildChartsPage() {
     polarSec.append(polarChart);
     polarCard.append(polarSec);
     grid.attach(polarCard.widget, 1, 2, 1, 1);
+    
+    // 7. Scatter Chart
+    const scatterCard = new QCard();
+    scatterCard.widget.hexpand = true;
+    scatterCard.widget.vexpand = true;
+    const scatterSec = new QCardSection();
+    scatterSec.widget.vexpand = true;
+    scatterSec.append(new QLabel({ label: '<b>Scatter Chart</b>', useMarkup: true }));
+    
+    const scatterChart = new QChart({ type: 'scatter', data: scatterData, color: '#f5c211' }); // Yellow
+    scatterChart.widget.height_request = 250;
+    scatterSec.append(scatterChart);
+    scatterCard.append(scatterSec);
+    grid.attach(scatterCard.widget, 0, 3, 1, 1);
+    
+    // 8. Bubble Chart
+    const bubbleCard = new QCard();
+    bubbleCard.widget.hexpand = true;
+    bubbleCard.widget.vexpand = true;
+    const bubbleSec = new QCardSection();
+    bubbleSec.widget.vexpand = true;
+    bubbleSec.append(new QLabel({ label: '<b>Bubble Chart</b>', useMarkup: true }));
+    
+    const bubbleChart = new QChart({ type: 'bubble', data: bubbleData, color: '#9141ac' }); // Purple
+    bubbleChart.widget.height_request = 250;
+    bubbleSec.append(bubbleChart);
+    bubbleCard.append(bubbleSec);
+    grid.attach(bubbleCard.widget, 1, 3, 1, 1);
     
     page.append(grid);
 

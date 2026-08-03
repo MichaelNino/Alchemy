@@ -91,6 +91,10 @@ export class QChart extends BaseComponent {
                 this.drawRadarChart(cr, width, height, data, r, g, b);
             } else if (this.type === 'polarArea') {
                 this.drawPolarAreaChart(cr, width, height, data, r, g, b);
+            } else if (this.type === 'scatter') {
+                this.drawScatterChart(cr, width, height, data, r, g, b);
+            } else if (this.type === 'bubble') {
+                this.drawBubbleChart(cr, width, height, data, r, g, b);
             }
         });
         
@@ -400,5 +404,54 @@ export class QChart extends BaseComponent {
             
             startAngle += angle;
         }
+    }
+    
+    drawScatterChart(cr, width, height, data, r, g, b) {
+        this._drawCartesianPoints(cr, width, height, data, r, g, b, false);
+    }
+    
+    drawBubbleChart(cr, width, height, data, r, g, b) {
+        this._drawCartesianPoints(cr, width, height, data, r, g, b, true);
+    }
+    
+    _drawCartesianPoints(cr, width, height, data, r, g, b, isBubble) {
+        const padding = 40;
+        const availWidth = width - (padding * 2);
+        const availHeight = height - (padding * 2);
+        
+        // Ensure data format is {x, y, r?}
+        if (!data[0] || data[0].x === undefined || data[0].y === undefined) return;
+        
+        const maxX = Math.max(...data.map(d => d.x), 1);
+        const maxY = Math.max(...data.map(d => d.y), 1);
+        const maxR = isBubble ? Math.max(...data.map(d => d.r || 1), 1) : 1;
+        
+        // Draw Axes
+        cr.setSourceRGBA(0.5, 0.5, 0.5, 1.0);
+        cr.setLineWidth(1);
+        cr.moveTo(padding, padding);
+        cr.lineTo(padding, height - padding);
+        cr.lineTo(width - padding, height - padding);
+        cr.stroke();
+        
+        // Draw Points
+        data.forEach(item => {
+            const mappedX = padding + (item.x / maxX) * availWidth;
+            const mappedY = height - padding - ((item.y / maxY) * availHeight);
+            
+            let bubbleRadius = 4; // Default scatter size
+            if (isBubble) {
+                // Scale bubbles up to 30px max radius
+                bubbleRadius = Math.max(3, ((item.r || 1) / maxR) * 30);
+            }
+            
+            cr.setSourceRGBA(r, g, b, 0.6); // Semi-transparent
+            cr.arc(mappedX, mappedY, bubbleRadius, 0, 2 * Math.PI);
+            cr.fillPreserve();
+            
+            cr.setSourceRGBA(r, g, b, 1.0); // Solid outline
+            cr.setLineWidth(1);
+            cr.stroke();
+        });
     }
 }
