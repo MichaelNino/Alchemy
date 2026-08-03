@@ -609,35 +609,25 @@ function buildKanbanPage() {
         form.append(new QInput({ label: 'Title', modelValue: titleRef }));
         form.append(new QInput({ label: 'Description', modelValue: descRef }));
         
+        form.append(new QLabel({ label: '<b>Assignee</b>', useMarkup: true }));
         form.append(new QSelect({ 
-            label: 'Assignee',
-            options: [{label: 'Unassigned', value: ''}, {label: 'Alice', value: 'Alice'}, {label: 'Bob', value: 'Bob'}, {label: 'Charlie', value: 'Charlie'}, {label: 'Dave', value: 'Dave'}, {label: 'Eve', value: 'Eve'}],
+            options: ['Unassigned', 'Alice', 'Bob', 'Charlie', 'Dave', 'Eve'],
             modelValue: assigneeRef
         }));
         
+        form.append(new QLabel({ label: '<b>Color</b>', useMarkup: true, margin_top: 10 }));
         form.append(new QSelect({
-            label: 'Color',
-            options: [
-                {label: 'Blue', value: '#3584e4'},
-                {label: 'Red', value: '#e01b24'},
-                {label: 'Yellow', value: '#f6d32d'},
-                {label: 'Green', value: '#2ec27e'},
-                {label: 'Brown', value: '#986a44'}
-            ],
+            options: ['#3584e4', '#e01b24', '#f6d32d', '#2ec27e', '#986a44'],
             modelValue: colorRef
         }));
         
+        form.append(new QLabel({ label: '<b>Status</b>', useMarkup: true, margin_top: 10 }));
         form.append(new QSelect({
-            label: 'Status',
-            options: [
-                {label: 'To Do', value: 'todo'},
-                {label: 'In Progress', value: 'in-progress'},
-                {label: 'Done', value: 'done'}
-            ],
+            options: ['todo', 'in-progress', 'done'],
             modelValue: statusRef
         }));
         
-        form.append(new QLabel({ label: '<b>Tags</b>', useMarkup: true }));
+        form.append(new QLabel({ label: '<b>Tags</b>', useMarkup: true, margin_top: 10 }));
         form.append(new QTagInput({ modelValue: tagsRef, placeholder: 'Type tag and press Enter' }));
         
         form.append(new QLabel({ label: '<b>Attachments</b>', useMarkup: true, margin_top: 10 }));
