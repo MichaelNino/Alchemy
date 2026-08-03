@@ -230,6 +230,9 @@ export class QScheduler extends BaseComponent {
             
             dayEvents.forEach(evt => {
                 const dot = new Gtk.Box();
+                dot.set_size_request(8, 8);
+                dot.halign = Gtk.Align.CENTER;
+                dot.valign = Gtk.Align.CENTER;
                 
                 const css = `* { min-width: 8px; min-height: 8px; border-radius: 50%; background-color: ${evt.color || '#3584e4'}; }`;
                 const provider = new Gtk.CssProvider();
