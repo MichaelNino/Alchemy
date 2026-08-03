@@ -44,11 +44,10 @@ export class QChart extends BaseComponent {
             box.append(legendBox);
             
             const rawData = this.data && this.data.value !== undefined ? this.data.value : (this.data || []);
-            const total = rawData.reduce((sum, item) => sum + item.value, 0);
+            const total = rawData.reduce((sum, item) => sum + (item.value || 0), 0);
             const [r, g, b] = hexToRGB(this.color);
             
             rawData.forEach((item, i) => {
-                const fraction = total === 0 ? 0 : item.value / total;
                 const modifier = (i % 5) * 0.15;
                 const [sr, sg, sb] = adjustBrightness(r, g, b, -0.3 + modifier);
                 
@@ -61,7 +60,11 @@ export class QChart extends BaseComponent {
                 });
                 
                 // Label
-                const labelStr = `${item.label} (${Math.round(fraction * 100)}%)`;
+                let labelStr = String(item.label || '');
+                if (item.value !== undefined) {
+                    const fraction = total === 0 ? 0 : item.value / total;
+                    labelStr += ` (${Math.round(fraction * 100)}%)`;
+                }
                 const label = new Gtk.Label({ label: labelStr, css_classes: ['dim-label'] });
                 
                 const itemBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 });
