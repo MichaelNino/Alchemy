@@ -1,7 +1,7 @@
 # QImage
 
 ## Overview
-`QImage` is a native UI component for rendering images using `Gtk.Picture` in a constrained box, enabling robust shape clipping and responsive layouts. It scales images to fit their boundaries properly.
+`QImage` is a native UI component for rendering images using a custom `vfunc_snapshot` implementation. It utilizes `Gdk.Texture` and `Gsk.RoundedRect` to provide flawless, hardware-accelerated shape clipping and scaling, bypassing GTK4 CSS border-radius limitations.
 
 ## Usage
 ```javascript

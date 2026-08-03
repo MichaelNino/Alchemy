@@ -1,7 +1,9 @@
 # QAvatar
 
 ## Overview
-`QAvatar` is a native UI component for displaying user profile pictures or generic icons within a stylized circular or square frame. 
+`QAvatar` is a native UI component for displaying user profile pictures or generic icons within a stylized circular or square frame. It is built upon `Gtk.Overlay` and `QImage`, allowing fallback components (like `QIcon`) to be perfectly centered on top of the background. 
+
+When a valid image is provided (or dynamically loaded), any appended fallback icons are automatically hidden, revealing the perfectly clipped `QImage` underneath.
 
 It also supports an interactive mode (unless `readonly: true`) where clicking the avatar automatically opens a strictly-jailed `QFileDialog` to let the user pick a new image from their disk!
 
