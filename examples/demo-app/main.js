@@ -11,7 +11,7 @@ import {
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
     QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
-    QTag, QTagInput
+    QTag, QTagInput, QScheduler
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -955,6 +955,36 @@ function buildChartsPage() {
     return page;
 }
 
+function buildSchedulerPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    const title = new QLabel({ label: '<span size="large" weight="bold">QScheduler Component</span>', useMarkup: true });
+    title.widget.margin_bottom = 10;
+    section.append(title.widget);
+    
+    const desc = new QLabel({ label: 'A comprehensive Calendar and Scheduling component supporting Month, Week, and Day views with built-in event management.', useMarkup: false });
+    desc.widget.wrap = true;
+    section.append(desc.widget);
+    
+    const d = new Date();
+    const events = ref([
+        { id: 1, title: 'Team Sync', start: new Date(d.getFullYear(), d.getMonth(), d.getDate(), 10, 0), end: new Date(d.getFullYear(), d.getMonth(), d.getDate(), 11, 0), color: '#3584e4' },
+        { id: 2, title: 'Lunch', start: new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0), end: new Date(d.getFullYear(), d.getMonth(), d.getDate(), 13, 0), color: '#f6d32d' },
+        { id: 3, title: 'Project Review', start: new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 14, 0), end: new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 15, 30), color: '#2ec27e' }
+    ]);
+    
+    const scheduler = new QScheduler({ events, currentDate: ref(d), currentView: ref('week') });
+    scheduler.widget.set_size_request(-1, 600); // Give it some height
+    
+    section.append(scheduler.widget);
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -999,6 +1029,7 @@ app.connect('activate', () => {
         { id: 'web', label: 'Web Components', icon: 'applications-internet-symbolic' },
         { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' },
         { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' },
+        { id: 'scheduler', label: 'Calendar / Scheduler', icon: 'x-office-calendar-symbolic' },
         { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' },
         { id: 'charts', label: 'Charts & Analytics', icon: 'utilities-system-monitor-symbolic' }
     ];
@@ -1057,6 +1088,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildWebPage(), 'web');
     contentStack.add_named(buildMediaPage(), 'media');
     contentStack.add_named(buildKanbanPage(), 'kanban');
+    contentStack.add_named(buildSchedulerPage(), 'scheduler');
     contentStack.add_named(buildCodeViewerPage(), 'code');
     contentStack.add_named(buildChartsPage(), 'charts');
     
