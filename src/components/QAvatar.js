@@ -25,8 +25,8 @@ export class QAvatar extends BaseComponent {
             this.setImage(props.image);
         }
 
-        // Editable (click to open QFileDialog)
-        if (props.editable) {
+        // Editable (click to open QFileDialog) unless readonly is true
+        if (!props.readonly) {
             this.widget.add_css_class('clickable'); // Cursor pointer if supported
             const click = new Gtk.GestureClick();
             click.connect('pressed', () => {
