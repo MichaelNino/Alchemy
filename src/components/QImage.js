@@ -1,85 +1,92 @@
+import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk?version=4.0';
+import Gdk from 'gi://Gdk?version=4.0';
+import Gsk from 'gi://Gsk?version=4.0';
+import Graphene from 'gi://Graphene';
 import { BaseComponent } from '../component.js';
 
-export class QImage extends BaseComponent {
-    constructor(props = {}) {
-        // Use a Box as the container to allow clipping via overflow
-        super(new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL }));
-        
-        this.widget.add_css_class('q-image');
-        this.widget.set_halign(Gtk.Align.CENTER);
-        this.widget.set_valign(Gtk.Align.CENTER);
-        
-        // Ensure clipping happens for shapes
-        this.widget.overflow = Gtk.Overflow.HIDDEN;
-        
+const NativeQImage = GObject.registerClass(
+class NativeQImage extends Gtk.Widget {
+    _init(props = {}) {
+        super._init({});
+        this._texture = null;
+        this.shape = props.shape || 'square';
         this.width = props.width || props.size || 100;
         this.height = props.height || props.size || 100;
-        this.widget.width_request = this.width;
-        this.widget.height_request = this.height;
-
-        this._picture = null;
-
-        // Shape (circle, square, etc.)
-        this._currentShape = props.shape;
-        if (this._currentShape) {
-            this._applyShapeCSS(this._currentShape);
-        }
-
-        // Src / Image
-        const imagePath = props.src || props.image;
-        if (imagePath) {
-            this.setSrc(imagePath);
-        }
-    }
-
-    _applyShapeCSS(shape, path) {
-        const provider = new Gtk.CssProvider();
-        let css = '';
         
-        let radius = '0px';
-        if (shape === 'circle') {
-            const maxDim = Math.max(this.width, this.height);
-            radius = `${Math.max(maxDim, 100)}px`;
-        } else if (shape === 'square') {
-            radius = '8px';
+        this.set_size_request(this.width, this.height);
+        this.add_css_class('q-image');
+        
+        if (props.image || props.src) {
+            this.setSrc(props.image || props.src);
         }
-        
-        css = `
-            .q-image { 
-                border-radius: ${radius}; 
-                min-width: ${this.width}px;
-                min-height: ${this.height}px;
-                background-color: transparent;
-            }
-        `;
-        
-        if (path) {
-            const GLib = imports.gi.GLib;
-            const uri = GLib.filename_to_uri(path, null);
-            css += `
-                .q-image {
-                    background-image: url('${uri}');
-                    background-size: cover;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                }
-            `;
-        }
-        
-        provider.load_from_data(css, -1);
-        
-        // Remove old provider if it exists
-        if (this._cssProvider) {
-            this.widget.get_style_context().remove_provider(this._cssProvider);
-        }
-        this._cssProvider = provider;
-        this.widget.get_style_context().add_provider(this._cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-        this.widget.queue_draw();
     }
 
     setSrc(path) {
-        this._currentPath = path;
-        this._applyShapeCSS(this._currentShape, path);
+        try {
+            this._texture = Gdk.Texture.new_from_filename(path);
+            this.queue_draw();
+        } catch (e) {
+            console.error("Failed to load image:", e);
+        }
+    }
+
+    vfunc_measure(orientation, for_size) {
+        if (orientation === Gtk.Orientation.HORIZONTAL) {
+            return [this.width, this.width, -1, -1];
+        } else {
+            return [this.height, this.height, -1, -1];
+        }
+    }
+
+    vfunc_snapshot(snapshot) {
+        if (!this._texture) return;
+
+        const w = this.get_width();
+        const h = this.get_height();
+        
+        const bounds = new Graphene.Rect();
+        bounds.init(0, 0, w, h);
+        
+        let radius = 0;
+        if (this.shape === 'circle') {
+            radius = Math.max(w, h); // Fully rounded
+        } else if (this.shape === 'square') {
+            radius = 8; // Slightly rounded like standard Quasar avatars
+        }
+
+        const rounded = new Gsk.RoundedRect();
+        rounded.init_from_rect(bounds, radius);
+
+        snapshot.push_rounded_clip(rounded);
+        
+        // Emulate background-size: cover (ContentFit.COVER)
+        const texW = this._texture.get_width();
+        const texH = this._texture.get_height();
+        
+        const ratioW = w / texW;
+        const ratioH = h / texH;
+        const coverRatio = Math.max(ratioW, ratioH);
+        
+        const drawW = texW * coverRatio;
+        const drawH = texH * coverRatio;
+        const drawX = (w - drawW) / 2;
+        const drawY = (h - drawH) / 2;
+        
+        const drawBounds = new Graphene.Rect();
+        drawBounds.init(drawX, drawY, drawW, drawH);
+        
+        snapshot.append_texture(this._texture, drawBounds);
+        snapshot.pop();
+    }
+});
+
+export class QImage extends BaseComponent {
+    constructor(props = {}) {
+        super(new NativeQImage(props));
+    }
+    
+    setSrc(path) {
+        this.widget.setSrc(path);
     }
 }

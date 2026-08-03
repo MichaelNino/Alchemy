@@ -4,28 +4,29 @@ import { QImage } from './QImage.js';
 
 export class QAvatar extends BaseComponent {
     constructor(props = {}) {
-        super(new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL }));
+        // Use Overlay so fallback icons and the image can stack correctly
+        super(new Gtk.Overlay());
         
         this.widget.add_css_class('avatar');
         this.widget.set_halign(Gtk.Align.CENTER);
         this.widget.set_valign(Gtk.Align.CENTER);
         
         this.size = props.size || 48;
-
-        // Shape (circle or square)
         const shape = props.shape || 'circle';
         
+        // The QImage is the main background child
         this.qImage = new QImage({
             size: this.size,
             shape: shape,
             image: props.image
         });
+        this.widget.set_child(this.qImage.widget);
         
-        this.widget.append(this.qImage.widget);
+        this._overlays = [];
 
         // Editable (click to open QFileDialog) unless readonly is true
         if (!props.readonly) {
-            this.widget.add_css_class('clickable'); // Cursor pointer if supported
+            this.widget.add_css_class('clickable');
             const click = new Gtk.GestureClick();
             click.connect('pressed', () => {
                 const GLib = imports.gi.GLib;
@@ -53,11 +54,21 @@ export class QAvatar extends BaseComponent {
     }
 
     setImage(path) {
+        // Hide fallback icons (overlays) when an image is loaded
+        for (const overlay of this._overlays) {
+            overlay.widget.set_visible(false);
+        }
         this.qImage.setSrc(path);
     }
 
     append(childComponent) {
         this.children.push(childComponent);
-        this.widget.append(childComponent.widget);
+        this._overlays.push(childComponent);
+        
+        // Overlays usually expand to fill, but we center them
+        childComponent.widget.set_halign(Gtk.Align.CENTER);
+        childComponent.widget.set_valign(Gtk.Align.CENTER);
+        
+        this.widget.add_overlay(childComponent.widget);
     }
 }
