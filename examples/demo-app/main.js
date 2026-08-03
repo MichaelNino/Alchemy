@@ -11,7 +11,7 @@ import {
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
     QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
-    QTag, QTagInput, QScheduler, QRichTextEditor
+    QTag, QTagInput, QScheduler, QRichTextEditor, QChat
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -1030,6 +1030,31 @@ function buildRichTextPage() {
     return page;
 }
 
+function buildChatPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<span size="large" weight="bold">QChat Messenger</span>', useMarkup: true }).widget);
+    
+    const messages = ref([
+        { id: '1', text: 'Hey, how is the Alchemy framework coming along?', senderId: 'user1', senderName: 'Alice', timestamp: new Date(Date.now() - 60000).toISOString() },
+        { id: '2', text: 'It is going great! Just built the chat component.', senderId: 'me', timestamp: new Date(Date.now() - 30000).toISOString() }
+    ]);
+    
+    const chat = new QChat({
+        modelValue: messages,
+        currentUser: 'me'
+    });
+    chat.widget.set_size_request(-1, 400); // Give it some height
+    
+    section.append(chat.widget);
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -1075,6 +1100,7 @@ app.connect('activate', () => {
         { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' },
         { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' },
         { id: 'scheduler', label: 'Calendar / Scheduler', icon: 'x-office-calendar-symbolic' },
+        { id: 'chat', label: 'Chat Messenger', icon: 'user-info-symbolic' },
         { id: 'richtext', label: 'Rich Text Editor', icon: 'format-text-bold-symbolic' },
         { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' },
         { id: 'charts', label: 'Charts & Analytics', icon: 'utilities-system-monitor-symbolic' }
@@ -1135,6 +1161,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildMediaPage(), 'media');
     contentStack.add_named(buildKanbanPage(), 'kanban');
     contentStack.add_named(buildSchedulerPage(), 'scheduler');
+    contentStack.add_named(buildChatPage(), 'chat');
     contentStack.add_named(buildRichTextPage(), 'richtext');
     contentStack.add_named(buildCodeViewerPage(), 'code');
     contentStack.add_named(buildChartsPage(), 'charts');

@@ -43,6 +43,7 @@ export { QTag } from './components/QTag.js';
 export { QTagInput } from './components/QTagInput.js';
 export { QScheduler } from './components/QScheduler.js';
 export { QRichTextEditor } from './components/QRichTextEditor.js';
+export { QChat } from './components/QChat.js';
 export { HTMLAdapter, MarkdownAdapter } from './utils/RichTextAdapters.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
