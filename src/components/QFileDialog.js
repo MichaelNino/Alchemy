@@ -177,6 +177,11 @@ export class QFileDialog extends BaseComponent {
             this.fileList.remove(child);
             child = next;
         }
+        
+        // Add ".." entry if not at root
+        if (this.currentPath !== this.currentRoot.path) {
+            this._addUpRow();
+        }
 
         const dir = Gio.File.new_for_path(this.currentPath);
         
@@ -195,6 +200,40 @@ export class QFileDialog extends BaseComponent {
                 }
             }
         );
+    }
+    
+    _addUpRow() {
+        const row = new Gtk.ListBoxRow();
+        const box = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+        box.margin_start = 10;
+        box.margin_end = 10;
+        box.margin_top = 5;
+        box.margin_bottom = 5;
+
+        const icon = new Gtk.Image({ icon_name: 'go-up-symbolic' });
+        box.append(icon);
+
+        const lbl = new Gtk.Label({ label: '.. (Up)', xalign: 0 });
+        box.append(lbl);
+
+        row.set_child(box);
+        
+        // Mock a fileInfo so row-activated knows it's a directory
+        row._fileInfo = {
+            get_file_type: () => Gio.FileType.DIRECTORY,
+            get_name: () => '..'
+        };
+        
+        // Set the path to the parent directory
+        const currentFile = Gio.File.new_for_path(this.currentPath);
+        const parent = currentFile.get_parent();
+        if (parent) {
+            row._path = parent.get_path();
+        } else {
+            row._path = this.currentRoot.path;
+        }
+        
+        this.fileList.append(row);
     }
 
     _readNextFiles(enumerator) {
@@ -276,9 +315,18 @@ export class QFileDialog extends BaseComponent {
     _navigateUp() {
         if (this.currentPath === this.currentRoot.path) return; // Jailed
         
-        const parentPath = GLib.path_get_dirname(this.currentPath);
-        // Extra safety check to prevent escaping jail
-        if (!parentPath.startsWith(this.currentRoot.path)) {
+        const currentFile = Gio.File.new_for_path(this.currentPath);
+        const parent = currentFile.get_parent();
+        if (!parent) return;
+
+        const parentPath = parent.get_path();
+        
+        // Remove trailing slashes for safety comparison
+        const cleanParent = parentPath.replace(/\/$/, "");
+        const cleanRoot = this.currentRoot.path.replace(/\/$/, "");
+
+        // Only allow upward navigation if the new parent is the root or a child of the root
+        if (cleanParent !== cleanRoot && !cleanParent.startsWith(cleanRoot + '/')) {
             this._loadDirectory(this.currentRoot.path);
             return;
         }
