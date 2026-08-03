@@ -2,11 +2,7 @@
 
 Alchemy Framework is a lightweight, highly-reactive UI component library for **GNOME/GJS**, heavily inspired by the beloved [Quasar Framework](https://quasar.dev/) (VueJS). 
 
-**Watch the Demo App in action:**
-
-<video src="docs/media/Alchemy-Demo.mp4" controls="controls" style="max-width: 100%;">
-  Your browser does not support the video tag.
-</video>
+**[🎥 Watch the Demo App in action (Video)](https://github.com/MichaelNino/Alchemy/blob/main/docs/media/Alchemy-Demo.mp4)**
 
 Alchemy bridges the gap between modern web development ergonomics and native Linux desktop application development. It allows you to build GNOME applications using a familiar, Vue-like composition API, while rendering 100% native GTK4 widgets.
 
