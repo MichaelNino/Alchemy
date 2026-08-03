@@ -114,7 +114,7 @@ function buildLayoutPage() {
     
     const menu = new QMenu({ modelValue: isMenuOpen });
     const menuList = new QList();
-    const m1 = new QItem(); m1.append(new QLabel({ label: 'Profile' }));
+    const m1 = new QItem({ icon: 'user-info-symbolic' }); m1.append(new QLabel({ label: 'Profile' }));
     const m2 = new QItem(); m2.append(new QLabel({ label: 'Settings' }));
     const m3 = new QItem(); m3.append(new QLabel({ label: 'Logout' }));
     menuList.append(m1); menuList.append(m2); menuList.append(m3);

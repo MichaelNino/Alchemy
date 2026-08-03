@@ -182,7 +182,7 @@ export class QFileDialog extends BaseComponent {
         
         // Read async
         dir.enumerate_children_async(
-            'standard::name,standard::type',
+            'standard::name,standard::type,standard::icon',
             Gio.FileQueryInfoFlags.NONE,
             GLib.PRIORITY_DEFAULT,
             null,
@@ -258,10 +258,9 @@ export class QFileDialog extends BaseComponent {
         box.margin_top = 5;
         box.margin_bottom = 5;
 
-        const isDir = info.get_file_type() === Gio.FileType.DIRECTORY;
-        const iconName = isDir ? 'folder-symbolic' : 'text-x-generic-symbolic';
-        
-        const icon = new Gtk.Image({ icon_name: iconName });
+        // Use GIO's native icon resolution (based on file type, extension, etc.)
+        const gicon = info.get_icon();
+        const icon = new Gtk.Image({ gicon: gicon });
         box.append(icon);
 
         const lbl = new Gtk.Label({ label: info.get_name(), xalign: 0 });
