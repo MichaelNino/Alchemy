@@ -19,6 +19,7 @@ export class QScheduler extends BaseComponent {
         this.events = props.events || ref([]);
         this.currentDate = props.currentDate || ref(new Date());
         this.currentView = props.currentView || ref('month'); // 'day', 'week', 'month'
+        this.backgroundColor = props.backgroundColor || '#ffffff';
         
         // Toolbar setup
         const toolbar = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
@@ -81,6 +82,15 @@ export class QScheduler extends BaseComponent {
         });
         
         const viewContainer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+        viewContainer.hexpand = true;
+        viewContainer.vexpand = true;
+        
+        // Apply configurable background color
+        viewContainer.add_css_class('scheduler-bg');
+        const provider = new Gtk.CssProvider();
+        provider.load_from_string(`.scheduler-bg { background-color: ${this.backgroundColor}; }`);
+        viewContainer.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        
         scrollArea.set_child(viewContainer);
         outerBox.append(scrollArea);
         
