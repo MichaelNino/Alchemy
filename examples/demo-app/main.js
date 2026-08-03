@@ -27,8 +27,27 @@ function buildIntroPage() {
     avatar.append(new QIcon({ name: 'applications-engineering-symbolic', size: 48 }));
     headerBox.append(avatar.widget);
     
+    let versionStr = 'v0.0.0';
+    try {
+        const [success, stdout, stderr, exit_status] = GLib.spawn_command_line_sync('git describe --tags --abbrev=0');
+        if (success && exit_status === 0) {
+            const decoder = new TextDecoder('utf-8');
+            versionStr = decoder.decode(stdout).trim();
+        }
+    } catch (e) {
+        console.error('Failed to get git tag:', e);
+    }
+
     const titleBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 5 });
-    titleBox.append(new QLabel({ label: '<span size="x-large" weight="bold">Alchemy Framework</span>', useMarkup: true }).widget);
+    
+    const titleRow = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 10 });
+    titleRow.append(new QLabel({ label: '<span size="x-large" weight="bold">Alchemy Framework</span>', useMarkup: true }).widget);
+    
+    const versionTag = new QTag({ label: versionStr, removable: false });
+    versionTag.widget.valign = Gtk.Align.CENTER;
+    titleRow.append(versionTag.widget);
+    
+    titleBox.append(titleRow);
     titleBox.append(new QLabel({ label: 'A Quasar-inspired UI Framework for GJS & GTK4' }).widget);
     headerBox.append(titleBox);
     
