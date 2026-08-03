@@ -3,14 +3,14 @@ import { BaseComponent } from '../component.js';
 
 export class QAvatar extends BaseComponent {
     constructor(props = {}) {
-        super(new Gtk.Frame());
+        // Use Box as the main widget so we can easily clip its contents
+        super(new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL }));
         
         this.widget.add_css_class('avatar');
+        this.widget.set_halign(Gtk.Align.CENTER);
+        this.widget.set_valign(Gtk.Align.CENTER);
         
-        this.box = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
-        this.box.set_halign(Gtk.Align.CENTER);
-        this.box.set_valign(Gtk.Align.CENTER);
-        this.widget.set_child(this.box);
+        // Ensure clipping happens so circular/square shape is enforced on the image
         this.widget.overflow = Gtk.Overflow.HIDDEN;
         
         this.size = props.size || 48;
@@ -21,11 +21,6 @@ export class QAvatar extends BaseComponent {
         const shape = props.shape || 'circle';
         this._applyShapeCSS(shape, this.size);
 
-        // Image loading
-        if (props.image) {
-            this.setImage(props.image);
-        }
-
         // Editable (click to open QFileDialog) unless readonly is true
         if (!props.readonly) {
             this.widget.add_css_class('clickable'); // Cursor pointer if supported
@@ -33,7 +28,6 @@ export class QAvatar extends BaseComponent {
             click.connect('pressed', () => {
                 const GLib = imports.gi.GLib;
                 
-                // Note: requires QFileDialog to be available
                 import('./QFileDialog.js').then(({ QFileDialog }) => {
                     const dialog = new QFileDialog({
                         title: 'Select Avatar Image',
@@ -54,6 +48,11 @@ export class QAvatar extends BaseComponent {
             });
             this.widget.add_controller(click);
         }
+
+        // Image loading
+        if (props.image) {
+            this.setImage(props.image);
+        }
     }
 
     _applyShapeCSS(shape, size) {
@@ -70,10 +69,10 @@ export class QAvatar extends BaseComponent {
 
     setImage(path) {
         // Clear existing children
-        let child = this.box.get_first_child();
+        let child = this.widget.get_first_child();
         while (child) {
             const next = child.get_next_sibling();
-            this.box.remove(child);
+            this.widget.remove(child);
             child = next;
         }
 
@@ -82,11 +81,14 @@ export class QAvatar extends BaseComponent {
         picture.content_fit = Gtk.ContentFit.COVER;
         picture.width_request = this.size;
         picture.height_request = this.size;
-        this.box.append(picture);
+        
+        // Ensure picture itself is un-focusable so clicks pass through, though GtkPicture doesn't take focus anyway
+        
+        this.widget.append(picture);
     }
 
     append(childComponent) {
         this.children.push(childComponent);
-        this.box.append(childComponent.widget);
+        this.widget.append(childComponent.widget);
     }
 }
