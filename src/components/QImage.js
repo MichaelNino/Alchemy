@@ -21,8 +21,9 @@ export class QImage extends BaseComponent {
         this._picture = null;
 
         // Shape (circle, square, etc.)
-        if (props.shape) {
-            this._applyShapeCSS(props.shape);
+        this._currentShape = props.shape;
+        if (this._currentShape) {
+            this._applyShapeCSS(this._currentShape);
         }
 
         // Src / Image
@@ -32,37 +33,45 @@ export class QImage extends BaseComponent {
         }
     }
 
-    _applyShapeCSS(shape) {
+    _applyShapeCSS(shape, path) {
         const provider = new Gtk.CssProvider();
         let css = '';
+        
+        let radius = '0px';
         if (shape === 'circle') {
             const maxDim = Math.max(this.width, this.height);
-            css = `.q-image { border-radius: ${Math.max(maxDim, 100)}px; }`;
+            radius = `${Math.max(maxDim, 100)}px`;
         } else if (shape === 'square') {
-            css = `.q-image { border-radius: 8px; }`;
+            radius = '8px';
         }
         
-        if (css) {
-            provider.load_from_data(css, css.length);
-            this.widget.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        css = `.q-image { border-radius: ${radius}; }`;
+        
+        if (path) {
+            const GLib = imports.gi.GLib;
+            const uri = GLib.filename_to_uri(path, null);
+            css += `
+                .q-image {
+                    background-image: url('${uri}');
+                    background-size: cover;
+                    background-position: center;
+                }
+            `;
         }
+        
+        provider.load_from_data(css, css.length);
+        
+        // Remove old provider if it exists
+        if (this._cssProvider) {
+            this.widget.get_style_context().remove_provider(this._cssProvider);
+        }
+        this._cssProvider = provider;
+        this.widget.get_style_context().add_provider(this._cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        this.widget.queue_draw();
     }
 
     setSrc(path) {
-        // Clear existing children
-        let child = this.widget.get_first_child();
-        while (child) {
-            const next = child.get_next_sibling();
-            this.widget.remove(child);
-            child = next;
-        }
-
-        this._picture = Gtk.Picture.new_for_filename(path);
-        this._picture.can_shrink = true;
-        this._picture.content_fit = Gtk.ContentFit.COVER;
-        this._picture.width_request = this.width;
-        this._picture.height_request = this.height;
-        
-        this.widget.append(this._picture);
+        this._currentPath = path;
+        this._applyShapeCSS(this._currentShape, path);
     }
 }
