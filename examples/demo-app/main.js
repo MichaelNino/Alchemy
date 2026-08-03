@@ -11,7 +11,7 @@ import {
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
     QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
-    QTag, QTagInput, QScheduler, QRichTextEditor, QChat
+    QTag, QTagInput, QScheduler, QRichTextEditor, QChat, QDiagram, BPMNAdapter
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -1055,6 +1055,40 @@ function buildChatPage() {
     return page;
 }
 
+function buildDiagramPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<span size="large" weight="bold">QDiagram (BPMN)</span>', useMarkup: true }).widget);
+    section.append(new QLabel({ label: 'Native GTK4 Drag &amp; Drop node diagramming with Cairo-based edges.' }).widget);
+    
+    const sampleBPMN = `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <bpmn:process id="Process_1">
+    <bpmn:startEvent id="StartEvent_1" name="Start" />
+    <bpmn:task id="Task_1" name="Approve Request" />
+    <bpmn:exclusiveGateway id="Gateway_1" name="Approved?" />
+    <bpmn:endEvent id="EndEvent_1" name="End" />
+    
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_1" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_1" targetRef="Gateway_1" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Gateway_1" targetRef="EndEvent_1" />
+  </bpmn:process>
+</bpmn:definitions>`;
+    
+    const diagramData = ref(BPMNAdapter.parse(sampleBPMN));
+    
+    const diagram = new QDiagram({ modelValue: diagramData });
+    diagram.widget.set_size_request(-1, 500); // 500px high viewport
+    
+    section.append(diagram.widget);
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -1102,6 +1136,7 @@ app.connect('activate', () => {
         { id: 'scheduler', label: 'Calendar / Scheduler', icon: 'x-office-calendar-symbolic' },
         { id: 'chat', label: 'Chat Messenger', icon: 'user-info-symbolic' },
         { id: 'richtext', label: 'Rich Text Editor', icon: 'format-text-bold-symbolic' },
+        { id: 'diagram', label: 'Diagrams (BPMN)', icon: 'view-sitemap-symbolic' },
         { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' },
         { id: 'charts', label: 'Charts & Analytics', icon: 'utilities-system-monitor-symbolic' }
     ];
@@ -1163,6 +1198,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildSchedulerPage(), 'scheduler');
     contentStack.add_named(buildChatPage(), 'chat');
     contentStack.add_named(buildRichTextPage(), 'richtext');
+    contentStack.add_named(buildDiagramPage(), 'diagram');
     contentStack.add_named(buildCodeViewerPage(), 'code');
     contentStack.add_named(buildChartsPage(), 'charts');
     
