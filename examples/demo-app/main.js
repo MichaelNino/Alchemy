@@ -1057,11 +1057,11 @@ function buildChatPage() {
 
 function buildDiagramPage() {
     const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
-    const card = new QCard();
-    const section = new QCardSection();
     
-    section.append(new QLabel({ label: '<span size="large" weight="bold">QDiagram (BPMN 2.0 Specification)</span>', useMarkup: true }).widget);
-    section.append(new QLabel({ label: 'Full BPMN 2.0 compliant viewer powered by embedded WebKit engine.' }).widget);
+    // --- BPMN ---
+    const bpmnCard = new QCard();
+    const bpmnSection = new QCardSection();
+    bpmnSection.append(new QLabel({ label: '<span size="large" weight="bold">BPMN 2.0 Diagram</span>', useMarkup: true }).widget);
     
     const sampleBPMN = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
@@ -1102,14 +1102,62 @@ function buildDiagramPage() {
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>`;
     
-    const diagramData = ref(sampleBPMN);
+    const bpmnDiagram = new QDiagram({ modelValue: ref(sampleBPMN), format: 'bpmn' });
+    bpmnDiagram.widget.set_size_request(-1, 300);
+    bpmnSection.append(bpmnDiagram.widget);
+    bpmnCard.append(bpmnSection);
+    page.append(bpmnCard.widget);
     
-    const diagram = new QDiagram({ modelValue: diagramData });
-    diagram.widget.set_size_request(-1, 500); // 500px high viewport
+    // --- Flowchart ---
+    const flowCard = new QCard();
+    const flowSection = new QCardSection();
+    flowSection.append(new QLabel({ label: '<span size="large" weight="bold">Flowchart (Mermaid)</span>', useMarkup: true }).widget);
     
-    section.append(diagram.widget);
-    card.append(section);
-    page.append(card.widget);
+    const sampleFlow = `graph TD
+    A[Start] --> B{Is it raining?}
+    B -- Yes --> C[Take Umbrella]
+    B -- No --> D[Enjoy Sun]
+    C --> E[Go Outside]
+    D --> E`;
+    
+    const flowDiagram = new QDiagram({ modelValue: ref(sampleFlow), format: 'flowchart' });
+    flowDiagram.widget.set_size_request(-1, 300);
+    flowSection.append(flowDiagram.widget);
+    flowCard.append(flowSection);
+    page.append(flowCard.widget);
+    
+    // --- UML Class Diagram ---
+    const umlCard = new QCard();
+    const umlSection = new QCardSection();
+    umlSection.append(new QLabel({ label: '<span size="large" weight="bold">UML Class Diagram (Mermaid)</span>', useMarkup: true }).widget);
+    
+    const sampleUML = `classDiagram
+    Animal <|-- Duck
+    Animal <|-- Fish
+    Animal <|-- Zebra
+    Animal : +int age
+    Animal : +String gender
+    Animal: +isMammal()
+    Animal: +mate()
+    class Duck{
+      +String beakColor
+      +swim()
+      +quack()
+    }
+    class Fish{
+      -int sizeInFeet
+      -canEat()
+    }
+    class Zebra{
+      +bool is_wild
+      +run()
+    }`;
+    
+    const umlDiagram = new QDiagram({ modelValue: ref(sampleUML), format: 'uml' });
+    umlDiagram.widget.set_size_request(-1, 300);
+    umlSection.append(umlDiagram.widget);
+    umlCard.append(umlSection);
+    page.append(umlCard.widget);
     
     return page;
 }
