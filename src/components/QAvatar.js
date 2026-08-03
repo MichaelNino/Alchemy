@@ -55,4 +55,9 @@ export class QAvatar extends BaseComponent {
     setImage(path) {
         this.qImage.setSrc(path);
     }
+
+    append(childComponent) {
+        this.children.push(childComponent);
+        this.widget.append(childComponent.widget);
+    }
 }
