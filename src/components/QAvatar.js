@@ -11,6 +11,7 @@ export class QAvatar extends BaseComponent {
         this.box.set_halign(Gtk.Align.CENTER);
         this.box.set_valign(Gtk.Align.CENTER);
         this.widget.set_child(this.box);
+        this.widget.overflow = Gtk.Overflow.HIDDEN;
         
         this.size = props.size || 48;
         this.widget.width_request = this.size;
@@ -59,9 +60,9 @@ export class QAvatar extends BaseComponent {
         const provider = new Gtk.CssProvider();
         let css = '';
         if (shape === 'circle') {
-            css = `.avatar { border-radius: ${Math.max(size, 100)}px; overflow: hidden; }`;
+            css = `.avatar { border-radius: ${Math.max(size, 100)}px; }`;
         } else {
-            css = `.avatar { border-radius: 8px; overflow: hidden; }`;
+            css = `.avatar { border-radius: 8px; }`;
         }
         provider.load_from_data(css, css.length);
         this.widget.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
