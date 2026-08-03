@@ -42,6 +42,8 @@ export { QKanbanCard } from './components/QKanbanCard.js';
 export { QTag } from './components/QTag.js';
 export { QTagInput } from './components/QTagInput.js';
 export { QScheduler } from './components/QScheduler.js';
+export { QRichTextEditor } from './components/QRichTextEditor.js';
+export { HTMLAdapter, MarkdownAdapter } from './utils/RichTextAdapters.js';
 export { QFormRules } from './utils/QFormRules.js';
 export { QOptionGroup } from './components/QOptionGroup.js';
 export { QTransfer } from './components/QTransfer.js';

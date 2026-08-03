@@ -11,7 +11,7 @@ import {
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
     QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
-    QTag, QTagInput, QScheduler
+    QTag, QTagInput, QScheduler, QRichTextEditor
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -985,6 +985,51 @@ function buildSchedulerPage() {
     return page;
 }
 
+function buildRichTextPage() {
+    const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 20 });
+    const card = new QCard();
+    const section = new QCardSection();
+    
+    section.append(new QLabel({ label: '<span size="large" weight="bold">QRichTextEditor</span>', useMarkup: true }).widget);
+    section.append(new QLabel({ label: 'Native GTK4 text editor with Markdown and HTML serialization adapters.' }).widget);
+    
+    const editorHtml = ref('');
+    const editorMarkdown = ref('');
+    
+    // HTML Editor
+    const htmlEditor = new QRichTextEditor({ modelValue: editorHtml, format: 'html' });
+    htmlEditor.widget.set_size_request(-1, 200);
+    
+    // Markdown Editor (shares state via markdown conversion if we wanted to, but let's keep them separate for demo)
+    const mdEditor = new QRichTextEditor({ modelValue: editorMarkdown, format: 'markdown' });
+    mdEditor.widget.set_size_request(-1, 200);
+    
+    const tabs = new Gtk.Notebook();
+    
+    const htmlBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, margin_top: 10 });
+    htmlBox.append(htmlEditor.widget);
+    const htmlPreview = new QLabel({ label: '' });
+    htmlPreview.widget.wrap = true;
+    effect(() => htmlPreview.widget.set_label(`<b>Raw HTML Output:</b>\n${editorHtml.value}`));
+    htmlBox.append(htmlPreview.widget);
+    
+    const mdBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 10, margin_top: 10 });
+    mdBox.append(mdEditor.widget);
+    const mdPreview = new QLabel({ label: '' });
+    mdPreview.widget.wrap = true;
+    effect(() => mdPreview.widget.set_label(`<b>Raw Markdown Output:</b>\n${editorMarkdown.value}`));
+    mdBox.append(mdPreview.widget);
+    
+    tabs.append_page(htmlBox, new Gtk.Label({ label: 'HTML Adapter' }));
+    tabs.append_page(mdBox, new Gtk.Label({ label: 'Markdown Adapter' }));
+    
+    section.append(tabs);
+    card.append(section);
+    page.append(card.widget);
+    
+    return page;
+}
+
 // --- Main App Initialization ---
 
 const app = new Gtk.Application({
@@ -1030,6 +1075,7 @@ app.connect('activate', () => {
         { id: 'media', label: 'Media Players', icon: 'audio-x-generic-symbolic' },
         { id: 'kanban', label: 'Kanban Board', icon: 'view-grid-symbolic' },
         { id: 'scheduler', label: 'Calendar / Scheduler', icon: 'x-office-calendar-symbolic' },
+        { id: 'richtext', label: 'Rich Text Editor', icon: 'format-text-bold-symbolic' },
         { id: 'code', label: 'Code Viewer', icon: 'text-x-script-symbolic' },
         { id: 'charts', label: 'Charts & Analytics', icon: 'utilities-system-monitor-symbolic' }
     ];
@@ -1089,6 +1135,7 @@ app.connect('activate', () => {
     contentStack.add_named(buildMediaPage(), 'media');
     contentStack.add_named(buildKanbanPage(), 'kanban');
     contentStack.add_named(buildSchedulerPage(), 'scheduler');
+    contentStack.add_named(buildRichTextPage(), 'richtext');
     contentStack.add_named(buildCodeViewerPage(), 'code');
     contentStack.add_named(buildChartsPage(), 'charts');
     
