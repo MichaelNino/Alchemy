@@ -11,7 +11,7 @@ import {
     QInput, QForm, QTree, QCheckbox, QRadio, QToggle,
     QDialog, QNotify, QSpinner, QProgressBar, QWebView, QAudioPlayer,
     QDragSource, QDropTarget, QCodeViewer, QChart, QFile, QVideoPlayer, QKanban, QFormRules, QOptionGroup, QTransfer, QSplitter, QFileDialog, QProgress,
-    QTag, QTagInput, QScheduler, QRichTextEditor, QChat, QDiagram
+    QTag, QTagInput, QScheduler, QRichTextEditor, QChat, QDiagram, QStatusBar
 } from '../../src/index.js';
 
 // --- Page Builders ---
@@ -1278,6 +1278,21 @@ app.connect('activate', () => {
     effect(() => {
         contentStack.set_visible_child_name(activePage.value);
     });
+    
+    // Status Bar (Taskbar-like)
+    const statusBar = new QStatusBar({
+        modelValue: ref([
+            { id: 'app1', icon: 'org.gnome.Terminal-symbolic', tooltip: 'Terminal' },
+            { id: 'app2', icon: 'web-browser-symbolic', tooltip: 'Web Browser' },
+            { id: 'app3', icon: 'system-file-manager-symbolic', tooltip: 'Files' }
+        ])
+    });
+    
+    const startBtn = new QBtn({ icon: 'start-here-symbolic', flat: true });
+    startBtn.setTooltip('Start Menu');
+    statusBar.appendStart(startBtn);
+    
+    rootLayout.append(statusBar);
     
     win.set_child(rootLayout.widget);
     win.present();
