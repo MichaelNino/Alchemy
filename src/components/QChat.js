@@ -122,11 +122,30 @@ export class QChat extends BaseComponent {
             rowBox.margin_top = 5;
             rowBox.margin_bottom = 5;
             
-            // Avatar for others
-            if (!isMe && msg.avatar) {
-                const avatar = new QAvatar({ src: msg.avatar, size: 36 });
+            // Helper to build an avatar
+            const buildAvatar = () => {
+                const avatar = new QAvatar({ image: msg.avatar, size: 36, readonly: true });
                 avatar.widget.valign = Gtk.Align.END;
-                rowBox.append(avatar.widget);
+                
+                // If no image, add an initial overlay
+                if (!msg.avatar) {
+                    const initial = isMe ? 'Me' : (msg.senderName ? msg.senderName.charAt(0).toUpperCase() : '?');
+                    const label = new QLabel({ label: `<span size="large" weight="bold">${initial}</span>`, useMarkup: true });
+                    avatar.append(label);
+                    
+                    // Give it a generic background color based on sender
+                    const bgStr = isMe ? 'background: #3584e4; color: white;' : 'background: @theme_bg_color; border: 1px solid @borders; color: @theme_fg_color;';
+                    
+                    const provider = new Gtk.CssProvider();
+                    provider.load_from_string(`.avatar { ${bgStr} border-radius: 50%; }`);
+                    avatar.widget.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+                }
+                return avatar;
+            };
+            
+            // Avatar for others goes on the left
+            if (!isMe) {
+                rowBox.append(buildAvatar().widget);
             }
             
             const contentBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
@@ -167,6 +186,11 @@ export class QChat extends BaseComponent {
             contentBox.append(timeLabel);
             
             rowBox.append(contentBox);
+            
+            // Avatar for me goes on the right
+            if (isMe) {
+                rowBox.append(buildAvatar().widget);
+            }
             
             this.listBox.append(rowBox);
         });
