@@ -26,7 +26,7 @@ const chat = new QChat({
 ## Props
 | Prop | Type | Description |
 |------|------|-------------|
-| `modelValue` | Ref (Array) | Array of message objects. Each object should have `id`, `text`, `senderId`, and `timestamp`. `senderName` and `avatar` are optional. |
+| `modelValue` | Ref (Array) | Array of message objects. Each object should have `id`, `text`, `senderId`, and `timestamp`. `senderName` and `avatar` are optional. If `avatar` is omitted, the component falls back to a colored circle containing the sender's initial (or 'M' for the current user). Hovering over any avatar displays a tooltip with the `senderName`. |
 | `currentUser` | String | The ID of the current user. Messages matching this ID will render on the right (sent). |
 | `onSend` | Function | Optional callback when the user sends a message. Receives the typed text as an argument. |
 
