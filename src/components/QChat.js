@@ -127,9 +127,13 @@ export class QChat extends BaseComponent {
                 const avatar = new QAvatar({ image: msg.avatar, size: 36, readonly: true });
                 avatar.widget.valign = Gtk.Align.END;
                 
+                // Add a hover tooltip displaying the user's name
+                const senderName = isMe ? 'Me' : (msg.senderName || 'Unknown User');
+                avatar.widget.set_tooltip_text(senderName);
+                
                 // If no image, add an initial overlay
                 if (!msg.avatar) {
-                    const initial = isMe ? 'Me' : (msg.senderName ? msg.senderName.charAt(0).toUpperCase() : '?');
+                    const initial = isMe ? 'M' : (msg.senderName ? msg.senderName.charAt(0).toUpperCase() : '?');
                     const label = new QLabel({ label: `<span size="large" weight="bold">${initial}</span>`, useMarkup: true });
                     avatar.append(label);
                     
